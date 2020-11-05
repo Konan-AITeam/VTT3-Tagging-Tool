@@ -32,6 +32,7 @@ public class ContentController {
 
     @Autowired
     private ContentService contentService;
+
     @Autowired
     private WorkflowService workflowService;
 
