@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+       Copyright 2015-2016 the original author or authors.
+
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.konantech.spring.mapper.WorkflowMapper">
+
+    <select id="getCompServerCount" parameterType="CheckInRequest" resultType="int">
+        SELECT
+        COUNT(*) AS COUNT
+        FROM
+        VTTM_COMPSERVER_TB
+        <where>
+            compservername = #{compservername}
+        </where>
+
+    </select>
+
+    <insert id="putCompServer" parameterType="CheckInRequest" useGeneratedKeys="true" keyProperty="compserverid">
+        <selectKey keyProperty="compserverid" resultType="Integer" order="BEFORE">
+            SELECT COALESCE(max(compserverid),0) + 1 FROM VTTM_COMPSERVER_TB
+        </selectKey>
+        INSERT INTO VTTM_COMPSERVER_TB (
+            COMPSERVERID, COMPSERVERNAME, POOL, CHANNEL, STATUS,
+            CHECKINTIME, SESSIONID, CLIENTIP, PORT, CLIENTURL, TIMESTAMP)
+        VALUES (
+            #{compserverid}, #{compservername}, #{pool}, #{channel}, 0,
+            now(), #{sessionid}, #{clientip}, #{port}, #{clienturl} ,now()
+        )
+    </insert>
+
+    <select id="getCompJob" resultType="CompJobTB">
+        SELECT 
+          JOBNAME, JOBTYPE, JOBPROPERTY, STARTEXNAME, PROGRESSEXNAME,
+          ENDEXNAME, PARAMPROPERTY
+        FROM 
+          VTTM_COMPJOB_TB
+        <where> 
+          JOBNAME = #{JOBNAME}
+        </where>
+    </select>
+
+    <insert id="putCompServerJob">
+        INSERT INTO VTTM_COMPSERVERJOB_TB (
+          COMPSERVERID, JOBNAME
+        ) VALUES (
+          #{compserverid}, #{jobname}
+        )
+    </insert>
+
+    <select id="getCompServerByID" resultType="CompServerTB">
+        SELECT * FROM
+          VTTM_COMPSERVER_TB
+        WHERE
+          COMPSERVERID = #{compserverid}
+    </select>
+
+    <delete id="delCompServerJob">
+        DELETE FROM VTTM_COMPSERVERJOB_TB
+        <where>
+          COMPSERVERID = #{compserverid}
+        </where>
+    </delete>
+
+    <delete id="delCompServer">
+        DELETE FROM VTTM_COMPSERVER_TB
+        <where>
+          COMPSERVERID = #{compserverid}
+        </where>
+    </delete>
+
+    <select id="getWorkFlowOrder" resultType="WorkFlowOrderTB">
+        SELECT
+        workflowname, jobname, subtype, seq, pool,
+        priority, expool
+        FROM
+          VTTM_WORKFLOWORDER_TB
+        <where>
+          AND WORKFLOWNAME = #{workflowname}
+          AND SUBTYPE = #{subtype}
+        </where>
+        ORDER BY SEQ
+    </select>
+
+    <insert id="putWorkflowHis" parameterType="WorkflowHisTB" useGeneratedKeys="true" keyProperty="workflowid">
+        <selectKey keyProperty="workflowid" resultType="Integer" order="BEFORE">
+            SELECT COALESCE(max(workflowid),0) + 1 FROM VTTM_WORKFLOWHIS_TB
+        </selectKey>
+        INSERT INTO VTTM_WORKFLOWHIS_TB (
+            WORKFLOWID, WORKFLOWNAME, SUBTYPE, CURRJOB, MAINTABLE,
+            MAINASSETID, REFTABLE, REFASSETID, SESSIONID, USERID,
+            STATUS, CREATETIME, DELETETIME
+        ) VALUES (
+            #{workflowid}, #{workflowname}, #{subtype}, #{currjob}, #{maintable},
+            #{mainassetid}, #{reftable}, #{refassetid}, #{sessionid}, #{userid},
+            0, now() , null
+        )
+    </insert>
+
+    <insert id="putCompJobQueue" parameterType="compJobQueueTB">
+        <selectKey keyProperty="jobid" resultType="Integer" order="BEFORE">
+            SELECT COALESCE(max(jobid),0) + 1 FROM VTTM_COMPJOBQUEUE_TB
+        </selectKey>
+        INSERT INTO VTTM_COMPJOBQUEUE_TB (
+            JOBID, WORKFLOWID, JOBNAME, COMPSERVERID, CHANNEL,
+            POOL, PRIORITY, STATUS, PROGRESS, PROGRESSEX,
+            STARTTIME, MODIFYTIME, ENDTIME, JOBCONTENTS, PARAMLIST,
+            FAILCOUNT, FAILREASON, JOBORDER
+        ) VALUES (
+            #{jobid}, #{workflowid}, #{jobname}, 0, 0,
+            #{pool}, #{priority}, 0, 0, NULL,
+            null, null, null, #{jobcontents}, #{paramlist},
+            0, NULL, #{joborder}
+        )
+    </insert>
+
+    <select id="selectAllocJob" resultType="CompJobQueueTB">
+        SELECT
+          *
+        FROM
+          VTTM_COMPJOBQUEUE_TB JOB
+        <where>
+          JOB.STATUS = 0
+          AND EXISTS (
+                SELECT
+                  *
+                FROM (
+                  SELECT
+                    A.POOL, B.JOBNAME
+                  FROM
+                    VTTM_COMPSERVER_TB A,
+                    VTTM_COMPSERVERJOB_TB B
+                  <where>
+                    A.STATUS = 0
+                    AND A.COMPSERVERID = B.COMPSERVERID
+                  </where>
+                ) SERVER
+                <where>
+                JOB.JOBNAME = SERVER.JOBNAME AND JOB.POOL = SERVER.POOL
+                </where>
+          )
+        </where>
+        ORDER BY PRIORITY DESC, JOBID
+        LIMIT 1
+    </select>
+
+    <select id="selectAllocServer" parameterType="CompJobQueueTB" resultType="CompServerTB">
+        SELECT
+          A.*,
+          (SELECT COUNT(*) FROM VTTM_COMPSERVER_TB WHERE STATUS > 0 AND CLIENTIP = A.CLIENTIP) AS WORKING
+        FROM
+            VTTM_COMPSERVER_TB A
+        <where>
+            POOL = #{pool}
+            AND STATUS = 0
+            AND COMPSERVERID IN (
+                SELECT
+                  COMPSERVERID
+                FROM
+                  VTTM_COMPSERVERJOB_TB
+                <where>
+                  JOBNAME = #{jobname}
+                </where>
+            )
+        </where>
+        ORDER BY WORKING, TIMESTAMP
+        LIMIT 1
+    </select>
+
+    <update id="updateCompjobAllocStatus" parameterType="CompJobQueueTB">
+        UPDATE VTTM_COMPJOBQUEUE_TB
+        <set>
+          STATUS = #{status}
+        </set>
+        <where>
+          JOBID = #{jobid}
+        </where>
+    </update>
+
+    <update id="updateCompserverAllocStatus" parameterType="CompServerTB">
+        UPDATE VTTM_COMPSERVER_TB
+        <set>
+          STATUS = #{status}
+        </set>
+        <where>
+          COMPSERVERID = #{compserverid}
+        </where>
+    </update>
+
+    <select id="selectWorkflowByID" resultType="WorkflowHisTB">
+        SELECT
+          WORKFLOWID, WORKFLOWNAME, SUBTYPE, CURRJOB, MAINTABLE,
+          MAINASSETID, REFTABLE, REFASSETID, SESSIONID, USERID,
+          STATUS, CREATETIME, DELETETIME
+        FROM
+          VTTM_WORKFLOWHIS_TB
+        <where>
+          WORKFLOWID = #{workflowid}
+        </where>
+    </select>
+
+    <select id="selectJobByID" resultType="CompJobQueueTB">
+        SELECT
+          *
+        FROM
+          VTTM_COMPJOBQUEUE_TB JOB
+        <where>
+          JOBID = #{jobid}
+        </where>
+    </select>
+
+    <update id="updateCompjobProgress" parameterType="com.konantech.spring.domain.workflow.CompJobQueueTB">
+        UPDATE
+        VTTM_COMPJOBQUEUE_TB
+        SET
+            PROGRESS = #{progress},
+            PROGRESSEX = #{progressex},
+            MODIFYTIME = now()
+        WHERE
+        JOBID = #{jobid}
+    </update>
+
+    <update id="updateCustom">
+      ${value}
+    </update>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <insert id="insertToDelWorkflow" parameterType="int">
+         INSERT INTO VTTM_WORKFLOWHIS_TB_DEL SELECT * FROM VTTM_WORKFLOWHIS_TB WHERE WORKFLOWID = #{workflowid}
+    </insert>
+
+
+    <insert id="insertToDelCompjob" parameterType="int">
+         INSERT INTO DEMO_COMPJOBQUEUE_TB_DEL SELECT * FROM VTTM_COMPJOBQUEUE_TB WHERE JOBID = #{jobid}
+    </insert>
+
+    <update id="updateCompjobStart" parameterType="com.konantech.spring.domain.workflow.CompJobQueueTB">
+        UPDATE
+          VTTM_COMPJOBQUEUE_TB
+        SET
+          STATUS = #{status},
+          COMPSERVERID = #{compserverid},
+          COMPSERVERIP = #{compserverip},
+          CHANNEL = #{channel},
+          PROGRESS = 0,
+          STARTTIME = now(),
+          MODIFYTIME = now()
+        WHERE
+          JOBID = #{jobid}
+    </update>
+
+    <update id="updateCompjobResult" parameterType="com.konantech.spring.domain.workflow.CompJobQueueTB">
+        UPDATE
+          VTTM_COMPJOBQUEUE_TB
+        SET
+          STATUS = #{status},
+          FAILREASON = #{failreason},
+          FAILCOUNT = #{failcount},
+          PROGRESS = #{progress},
+          MODIFYTIME = now(),
+          ENDTIME = now()
+        WHERE
+          JOBID = #{jobid}
+    </update>
+
+    <update id="updateCompserverStatus" parameterType="com.konantech.spring.domain.workflow.CompServerTB">
+        UPDATE
+          VTTM_COMPSERVER_TB
+        SET
+          STATUS = #{status},
+          TIMESTAMP = now()
+        WHERE
+          COMPSERVERID = #{compserverid}
+    </update>
+
+    <update id="updateCompserverTimeStamp" parameterType="com.konantech.spring.domain.workflow.CompServerTB">
+        UPDATE
+          VTTM_COMPSERVER_TB
+        SET
+          TIMESTAMP = now()
+        WHERE
+          COMPSERVERID = #{compserverid}
+    </update>
+
+    <update id="updateWorkflowStatusAndCurJob" parameterType="com.konantech.spring.domain.workflow.WorkflowHisTB">
+        UPDATE VTTM_WORKFLOWHIS_TB SET STATUS = #{status}, CURRJOB = #{currjob} WHERE WORKFLOWID = #{workflowid}
+    </update>
+    <update id="updateWorkflowStatus" parameterType="com.konantech.spring.domain.workflow.WorkflowHisTB">
+        UPDATE VTTM_WORKFLOWHIS_TB SET STATUS = #{status} WHERE WORKFLOWID = #{workflowid}
+    </update>
+    <update id="updateWorkflowStatusAndDeleteTime" parameterType="com.konantech.spring.domain.workflow.WorkflowHisTB">
+        UPDATE
+          VTTM_WORKFLOWHIS_TB
+        SET
+          STATUS = #{status},
+          DELETETIME = now()
+        WHERE
+          WORKFLOWID = #{workflowid}
+    </update>
+
+
+
+    <delete id="deleteWorkflow" parameterType="int">
+        DELETE FROM VTTM_WORKFLOWHIS_TB WHERE WORKFLOWID = #{workflowid}
+    </delete>
+
+
+    <delete id="deleteCompjob" parameterType="int">
+        DELETE FROM VTTM_COMPJOBQUEUE_TB WHERE JOBID = #{jobid}
+    </delete>
+
+    <select id="selectCompjobOrder" resultType="java.util.Map">
+        SELECT JOBNAME, POOL, PRIORITY FROM VTTM_WORKFLOWORDER_TB WHERE WORKFLOWNAME = #{WORKFLOWNAME} AND SUBTYPE = #{SUBTYPE} AND SEQ = #{SEQ}
+    </select>
+
+
+
+
+    <select id="selectSubtypeByName" resultType="int">
+        SELECT SUBTYPE FROM VTTM_WORKFLOWORDER_TB WHERE WORKFLOWNAME = #{WORKFOWNAME} GROUP BY SUBTYPE ORDER BY SUBTYPE
+    </select>
+
+
+
+
+
+    <select id="selectCustomInt" resultType="int">
+         ${value}
+    </select>
+    <select id="selectCustomObjectList" resultType="java.util.Map">
+        ${value}
+    </select>
+    <select  id="selectCustomObject" resultType="java.util.Map">
+        ${ value }
+    </select>
+
+    <insert id="putCatalogQue" parameterType="map">
+        insert into vttm_catalogque_tb
+        (videoid, catalog_path, video_full_path, status, callback_url, error_msg, progress, cancle_yn, update_date)
+        values
+        (
+          #{videoid}
+          ,#{catalog_path}
+          ,#{video_full_path}
+          ,'wait'
+          ,#{callback_url}
+          ,#{error_msg}
+          ,#{progress}
+          ,'N'
+          ,now()
+        )on conflict (videoid)
+        do
+        update
+        set
+          error_msg = #{error_msg},
+          status = #{status},
+          cancle_yn = #{cancle_yn},
+          progress = ${progress},
+          update_date = now()
+    </insert>
+</mapper>

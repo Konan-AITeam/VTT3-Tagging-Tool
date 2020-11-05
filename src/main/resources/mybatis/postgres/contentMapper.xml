@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.konantech.spring.mapper.ContentMapper">
+
+    <select id="getContentCount" parameterType="ContentQuery" resultType="int">
+        SELECT
+        COUNT(*) AS COUNT
+        FROM
+        VTTM_VIDEO_TB
+        <where>
+
+        </where>
+    </select>
+
+    <select id="getContentList" parameterType="ContentQuery" resultType="java.util.TreeMap">
+
+        SELECT
+        idx ,title ,content
+        ,orifilename ,assetfilename,assetfilepath ,assetfilesize
+        ,transcodingendtime ,transcodingstarttime ,transcodingstatus
+        ,catalogendtime ,catalogstarttime ,catalogstatus
+        ,createtime ,createuser
+        ,mediainfo
+        ,genre
+        ,delflag
+        FROM
+        VTTM_VIDEO_TB
+        <where>
+            display = true
+        </where>
+        ORDER BY idx desc
+        <if test="limit > 0">LIMIT #{limit}</if>
+        <if test="offset > 0">OFFSET #{offset}</if>
+
+    </select>
+
+    <select id="getAutoTaggingContentList" parameterType="map" resultType="java.util.TreeMap">
+
+        SELECT
+        idx ,title ,content
+        ,orifilename ,assetfilename,assetfilepath ,assetfilesize
+        ,transcodingendtime ,transcodingstarttime ,transcodingstatus
+        ,catalogendtime ,catalogstarttime ,catalogstatus
+        ,createtime ,createuser
+        ,mediainfo
+        ,genre
+        ,delflag
+          FROM VTTM_VIDEO_TB
+         WHERE IDX BETWEEN #{startIdx} AND #{endIdx}
+        ORDER BY idx desc
+
+    </select>
+
+
+    <delete id="deleteMetaInfo" parameterType="int">
+        DELETE FROM VTTM_META_INFO_TB
+        <where>
+            idx = #{idx}
+        </where>
+    </delete>
+
+
+    <delete id="deleteSectionInfo" parameterType="int">
+        DELETE FROM VTTM_SECTION_INFO_TB
+        <where>
+            videoid = #{idx}
+        </where>
+    </delete>
+
+
+    <delete id="deleteRepImg" parameterType="int">
+        DELETE FROM VTTM_REP_IMG_TB
+        <where>
+            video_idx = #{idx}
+        </where>
+    </delete>
+
+
+    <delete id="deleteContentItem" parameterType="int">
+        DELETE FROM VTTM_VIDEO_TB
+        <where>
+            idx = #{idx}
+        </where>
+    </delete>
+
+    <select id="getContentItem" parameterType="ContentQuery" resultType="ContentField">
+
+        SELECT
+        idx ,title ,content
+        ,orifilename ,assetfilename,assetfilepath ,assetfilesize
+        ,transcodingendtime ,transcodingstarttime ,transcodingstatus
+        ,catalogendtime ,catalogstarttime ,catalogstatus
+        ,createtime ,createuser
+        ,mediainfo
+        ,genre
+        ,delflag
+        FROM
+        VTTM_VIDEO_TB
+        <where>
+            idx = #{idx}
+        </where>
+
+    </select>
+
+    <insert id="putContentItem" parameterType="map" useGeneratedKeys="true" keyProperty="idx">
+        <selectKey keyProperty="idx" resultType="Integer" order="BEFORE">
+            SELECT NEXTVAL('SEQ_VTTM_VIDEO_TB')
+            -- SELECT COALESCE(max(idx),0) + 1 FROM VTTM_VIDEO_TB
+        </selectKey>
+        INSERT INTO VTTM_VIDEO_TB (
+        idx, title, content
+        ) values (
+        #{idx}, #{title}, #{content}
+        )
+    </insert>
+
+    <update id="updateContentItem" parameterType="map">
+        UPDATE VTTM_VIDEO_TB
+        <set>
+            <if test="objectid != null and objectid != '' ">objectid = #{objectid},</if>
+            <if test="assetfilepath != null and assetfilepath != '' ">assetfilepath = #{assetfilepath},</if>
+            <if test="assetfilename != null and assetfilename != '' ">assetfilename = #{assetfilename},</if>
+            <if test="assetfilesize != null and assetfilesize != '' ">assetfilesize = #{assetfilesize},</if>
+            <if test="orifilename != null and orifilename != '' ">orifilename = #{orifilename},</if>
+            <if test="mediainfo != null and mediainfo != '' ">mediainfo = cast(#{mediainfo} as jsonb),</if>
+            <if test="catalogstatus != null and catalogstatus != '' ">catalogstatus = #{catalogstatus},</if>
+            <if test="catalogendtime != null and catalogendtime != '' ">catalogendtime = #{catalogendtime},</if>
+            <if test="volumewin != null and volumewin != '' ">volumewin = #{volumewin},</if>
+            <if test="volumeetc != null and volumeetc != '' ">volumeetc = #{volumeetc},</if>
+            <if test="display != null and display != '' ">display = #{display},</if>
+        </set>
+        <where>
+            idx = #{idx}
+        </where>
+    </update>
+
+    <insert id="insertRepImg" parameterType="int">
+        insert into vttm_rep_img_tb
+        select
+          (select max(represent_img_idx) from vttm_rep_img_tb) + row_number() over() as represent_img_idx
+          ,row_number() over(partition by a.represent_img_seq )  as represent_img_seq
+          ,trim(both '.jpg' from a.image) as image_file_id
+          ,'{}' as represent_img_json
+          ,now() as registed_time
+          ,a.idx as video_idx
+          ,'http://10.10.18.231:7070/darc4/proxyshot/'||b.assetfilepath|| trim(both '.jpg' from b.assetfilename) || '/' ||a.image as img_url
+          ,trim(both '.jpg' from b.assetfilename) as section_idx
+          ,a.shotid as shot_id
+        from
+          (select
+            x.*
+            ,json_array_elements(x.vtt_meta_json) ->>'period_num' as represent_img_seq
+             ,json_array_elements(x.vtt_meta_json) ->>'image' as image
+            from
+          vttm_meta_info_tb x)a
+          inner join VTTM_SHOT_TB b
+            on a.idx = b.videoid
+               and a.shotid = b.shotid
+          where a.idx = #{idx}
+          order by a.idx,a.shotid
+    </insert>
+
+    <select id="getRepImgPath" parameterType="int" resultType="map">
+        select
+               row_number() over ()                      as img_idx
+             , a.idx                                     as video_idx
+             , trim(both '.jpg' from a.image)            as section_idx
+             , trim(both '.jpg' from b.assetfilename)    as image_file_id
+             , b.assetfilepath || '/' || b.assetfilename as img_url
+        from (select x.*
+                , json_array_elements(json_build_array(x.vtt_meta_json)) ->> 'image_id' as image
+                from vttm_meta_info_tb x) a
+                    inner join vttm_frame_img_tb b
+                        on a.idx = b.videoid
+                        and a.shotid = b.shotid
+                        and a.frameimgid = b.frameimgid
+                where a.idx = #{idx}
+                    and a.idx >= 1073
+                    and a.vtt_meta_json is not null
+                    and a.userid != 'konan'
+        order by section_idx, a.idx,a.shotid
+    </select>
+
+    <select id="getFileUserList" parameterType="map" resultType="map">
+        select a.infoType AS info_type
+              ,a.user_id  AS user_id
+          from (
+                select distinct userid as user_id
+                      ,'visual' as infoType
+                  from vttm_meta_info_tb
+                 where idx = #{idx}
+                union
+                select distinct a.userid as user_id
+                      ,'sound' as infoType
+                  from vttm_sound_tb a
+                  join vttm_code_tb b
+                    on a.soundtype = b.code
+                 where videoid = #{idx}
+                union
+                select userid as user_id
+                      ,'section' as infoType
+                  from (
+                        select distinct b.userid
+                          from (select * from vttm_section_info_tb where videoid = #{idx}) a
+                          join (select * from vttm_section_relation_tb where videoid = #{idx}) b
+                            on a.sectionid = b.subject_sectionid
+                          join vttm_code_tb c
+                            on b.relationcode = c.code
+                        union
+                        select distinct b.userid
+                        from (select * from vttm_section_info_tb where videoid = #{idx}) a
+                          join vttm_section_depiction_tb b
+                            on a.sectionid = b.sectionid
+                        union
+                        select distinct b.userid
+                          from (select * from vttm_section_info_tb where videoid = #{idx}) a
+                          join vttm_section_qa_tb b
+                            on a.sectionid = b.sectionid
+                       ) b
+                union
+                select userid as user_id
+                      ,'subtitle' as infoType
+                  from vttm_subtitle_tb
+                 where videoid = #{idx}
+               ) a
+         where a.user_id is not null
+           and a.user_id != 'konan'
+    </select>
+
+    <select id="checkActiveRun" parameterType="String" resultType="int">
+
+        select count(activerun) as cnt from VTTM_SHOT_TB where videoid = #{idx} and activerun = true and delflag = false
+
+    </select>
+
+    <update id="updateActiveRun" parameterType="String">
+
+        update VTTM_SHOT_TB set activerun = true where videoid = #{idx}
+
+    </update>
+
+    <select id="getFrameImgTb" parameterType="int" resultType="map">
+        select * from vttm_frame_img_tb where videoid = #{idx} order by frameimgid
+    </select>
+</mapper>

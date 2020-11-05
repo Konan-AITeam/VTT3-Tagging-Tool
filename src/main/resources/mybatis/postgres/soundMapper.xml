@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.konantech.spring.mapper.SoundMapper">
+    <select id="getSoundList" parameterType="map" resultType="java.util.Map">
+
+        SELECT
+            soundid,
+            videoid,
+            starttimecode,
+            endtimecode,
+            soundtype
+        FROM
+          VTTM_SOUND_TB
+        <where>
+            videoid = #{idx}
+            and userid = #{userid}
+        </where>
+        ORDER BY starttimecode asc
+
+    </select>
+
+    <insert id="putSoundItem" parameterType="map" useGeneratedKeys="true" keyProperty="soundid">
+        <selectKey keyProperty="soundid" resultType="Integer" order="BEFORE">
+            SELECT NEXTVAL('SEQ_SOUND_TB')
+        </selectKey>
+        INSERT INTO VTTM_SOUND_TB (
+            soundid,
+            videoid,
+            starttimecode,
+            endtimecode,
+            soundtype,
+            userid
+        ) values (
+            #{soundid},
+            #{videoid},
+            #{starttimecode},
+            #{endtimecode},
+            #{soundtype},
+            #{userid}
+        )
+    </insert>
+
+    <update id="setSoundItem" parameterType="map">
+        UPDATE VTTM_SOUND_TB
+        SET
+            starttimecode = #{starttimecode},
+            endtimecode = #{endtimecode},
+            soundtype = #{soundtype}
+        where soundid = #{soundid}
+    </update>
+
+    <delete id="deleteSoundItems">
+        DELETE FROM VTTM_SOUND_TB
+        <where>
+            soundid = #{soundid}
+        </where>
+    </delete>
+
+
+
+    <select id="getSoundJson" parameterType="map" resultType="Sound">
+        select
+            v.orifilename as file_name,
+            v.assetfilename as registed_name
+        from
+          vttm_video_tb v
+        where v.idx = #{idx}
+    </select>
+
+    <select id="getSoundResultsJson" parameterType="map" resultType="com.konantech.spring.domain.sound.Sound$SoundResult">
+    select
+        s.starttimecode as start_time,
+        s.endtimecode as end_time,
+        c.code_name as sound_type
+    from vttm_sound_tb s
+      inner join vttm_code_tb c
+      on s.soundtype = c.code
+    where
+      s.videoid = #{idx}
+      and s.userid = #{userid}
+    </select>
+</mapper>

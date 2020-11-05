@@ -1,0 +1,494 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.konantech.spring.mapper.SectionMapper">
+    <select id="getSectionList" parameterType="map" resultType="java.util.Map">
+
+        SELECT
+            sectionid,
+            videoid,
+            starttimecode,
+            startframeindex,
+            endtimecode,
+            endframeindex,
+            sectionname,
+            startshotid,
+            endshotid
+        FROM
+          VTTM_SECTION_INFO_TB
+        <where>
+            videoid = #{idx}
+        </where>
+        ORDER BY startshotid, endshotid asc
+
+    </select>
+
+    <select id="getSectionOfSceneList" parameterType="map" resultType="java.util.Map">
+        SELECT
+        sectionid,
+        videoid,
+        starttimecode,
+        startframeindex,
+        endtimecode,
+        endframeindex,
+        sectionname,
+        startshotid,
+        endshotid
+        FROM
+        VTTM_SECTION_INFO_TB
+        <where>
+            videoid = #{idx}
+            AND sectionid = #{sectionid}
+        </where>
+        ORDER BY startshotid, endshotid asc
+    </select>
+
+    <insert id="putSectionItem" parameterType="map" useGeneratedKeys="true" keyProperty="sectionid">
+        <selectKey keyProperty="sectionid" resultType="Integer" order="BEFORE">
+            SELECT NEXTVAL('SEQ_SECTION_INFO_TB')
+        </selectKey>
+        INSERT INTO VTTM_SECTION_INFO_TB (
+          sectionid, videoid,
+          starttimecode,
+          startframeindex,
+          endtimecode,
+          endframeindex,
+          userid,
+          sectionname, startshotid, endshotid
+        ) values (
+          #{sectionid}, #{videoid},
+          (select starttimecode from vttm_shot_tb where shotid=#{startshotid}),
+          (select startframeindex from vttm_shot_tb where shotid=#{startshotid}),
+          (select endtimecode from vttm_shot_tb where shotid=#{endshotid}),
+          (select endframeindex from vttm_shot_tb where shotid=#{endshotid}),
+          #{userid},
+          #{sectionname}, #{startshotid}, #{endshotid}
+        )
+    </insert>
+
+    <update id="setSectionItem" parameterType="map">
+        UPDATE VTTM_SECTION_INFO_TB
+        SET
+            starttimecode = (select starttimecode from vttm_shot_tb where shotid=#{startshotid}),
+            startframeindex = (select startframeindex from vttm_shot_tb where shotid=#{startshotid}),
+            endtimecode = (select endtimecode from vttm_shot_tb where shotid=#{endshotid}),
+            endframeindex = (select endframeindex from vttm_shot_tb where shotid=#{endshotid}),
+            sectionname = #{sectionname}, startshotid = #{startshotid}, endshotid = #{endshotid}
+        where sectionid = #{sectionid}
+    </update>
+
+    <delete id="deleteSectionItems">
+        DELETE FROM VTTM_SECTION_INFO_TB
+        <where>
+            sectionid = #{sectionid}
+        </where>
+    </delete>
+
+    <select id="getDepictionList" parameterType="map" resultType="java.util.Map">
+        SELECT
+            depictionid,
+            sectionid,
+            depiction
+        FROM
+        VTTM_SECTION_DEPICTION_TB
+        <where>
+            sectionid = #{sectionid}
+            and userid = #{userid}
+        </where>
+        ORDER BY depictionid asc
+    </select>
+
+
+    <insert id="putDepictionItem" parameterType="map" useGeneratedKeys="true" keyProperty="depictionid">
+        <selectKey keyProperty="depictionid" resultType="Integer" order="BEFORE">
+            SELECT NEXTVAL('SEQ_SECTION_DEPICTION_TB')
+        </selectKey>
+        INSERT INTO VTTM_SECTION_DEPICTION_TB (
+            depictionid,
+            sectionid,
+            depiction,
+            userid
+        ) values (
+            #{depictionid},
+            #{sectionid},
+            #{depiction},
+            #{userid}
+        )
+    </insert>
+
+    <update id="setDepictionItem" parameterType="map">
+        UPDATE VTTM_SECTION_DEPICTION_TB
+        SET
+            depiction = #{depiction}
+        where depictionid = #{depictionid}
+    </update>
+
+    <select id="getQuestionList" parameterType="map" resultType="java.util.Map">
+        SELECT
+        questionid, questiontype, sectionid, question, answer, wrong_answer1, wrong_answer2, wrong_answer3, wrong_answer4
+        FROM
+        VTTM_SECTION_QA_TB
+        <where>
+            sectionid = #{sectionid}
+            and userid = #{userid}
+        </where>
+        ORDER BY questionid asc
+    </select>
+
+    <insert id="putQuestionItem" parameterType="map" useGeneratedKeys="true" keyProperty="questionid">
+        <selectKey keyProperty="questionid" resultType="Integer" order="BEFORE">
+            SELECT NEXTVAL('SEQ_SECTION_QA_TB')
+        </selectKey>
+        INSERT INTO VTTM_SECTION_QA_TB (
+            questionid,
+            questiontype,
+            sectionid,
+            question,
+            answer,
+            wrong_answer1,
+            wrong_answer2,
+            wrong_answer3,
+            wrong_answer4,
+            userid
+        ) values (
+            #{questionid},
+            #{questiontype},
+            #{sectionid},
+            #{question},
+            #{answer},
+            #{wrong_answer1},
+            #{wrong_answer2},
+            #{wrong_answer3},
+            #{wrong_answer4},
+            #{userid}
+        )
+    </insert>
+
+    <update id="setQuestionItem" parameterType="map">
+        UPDATE VTTM_SECTION_QA_TB
+        SET
+            question = #{question},
+            questiontype = #{questiontype},
+            answer = #{answer},
+            wrong_answer1 = #{wrong_answer1},
+            wrong_answer2 = #{wrong_answer2},
+            wrong_answer3 = #{wrong_answer3},
+            wrong_answer4 = #{wrong_answer4}
+        where questionid = #{questionid}
+    </update>
+
+    <select id="getShotQuestionList" parameterType="map" resultType="java.util.Map">
+        SELECT
+        questionid, questiontype, shotid, question, answer, wrong_answer1, wrong_answer2, wrong_answer3, wrong_answer4
+        FROM
+        VTTM_SHOT_QA_TB
+        <where>
+            shotid = #{shotid}
+            and userid = #{userid}
+        </where>
+        ORDER BY questionid asc
+    </select>
+
+    <insert id="putShotQuestionItem" parameterType="map" useGeneratedKeys="true" keyProperty="questionid">
+        <selectKey keyProperty="questionid" resultType="Integer" order="BEFORE">
+            SELECT NEXTVAL('SEQ_SHOT_QA_TB')
+        </selectKey>
+        INSERT INTO VTTM_SHOT_QA_TB (
+        questionid,
+        questiontype,
+        shotid,
+        question,
+        answer,
+        wrong_answer1,
+        wrong_answer2,
+        wrong_answer3,
+        wrong_answer4,
+        userid
+        ) values (
+        #{questionid},
+        #{questiontype},
+        #{shotid},
+        #{question},
+        #{answer},
+        #{wrong_answer1},
+        #{wrong_answer2},
+        #{wrong_answer3},
+        #{wrong_answer4},
+        #{userid}
+        )
+    </insert>
+
+    <update id="setShotQuestionItem" parameterType="map">
+        UPDATE VTTM_SHOT_QA_TB
+        SET
+            question = #{question},
+            questiontype = #{questiontype},
+            answer = #{answer},
+            wrong_answer1 = #{wrong_answer1},
+            wrong_answer2 = #{wrong_answer2},
+            wrong_answer3 = #{wrong_answer3},
+            wrong_answer4 = #{wrong_answer4}
+        where questionid = #{questionid}
+    </update>
+    <select id="getRelationList" parameterType="map" resultType="java.util.Map">
+        SELECT
+          relationid, videoid, subject_sectionid, object_sectionid, relationcode, userid
+        FROM
+        VTTM_SECTION_RELATION_TB
+        <where>
+           videoid = #{videoid}
+            and userid = #{userid}
+        </where>
+        ORDER BY subject_sectionid,object_sectionid asc
+    </select>
+
+
+    <insert id="putRelationItem" parameterType="map" useGeneratedKeys="true" keyProperty="relationid">
+        <selectKey keyProperty="relationid" resultType="Integer" order="BEFORE">
+            SELECT NEXTVAL('SEQ_SECTION_RELATION_TB')
+        </selectKey>
+        INSERT INTO VTTM_SECTION_RELATION_TB (
+            relationid,
+            videoid,
+            subject_sectionid,
+            object_sectionid,
+            relationcode,
+            userid
+        ) values (
+            #{relationid},
+            #{videoid},
+            #{subject_sectionid},
+            #{object_sectionid},
+            #{relationcode},
+            #{userid}
+        )
+    </insert>
+
+    <update id="setRelationItem" parameterType="map">
+        UPDATE VTTM_SECTION_RELATION_TB
+        SET
+            subject_sectionid = #{subject_sectionid},
+            object_sectionid = #{object_sectionid},
+            relationcode = #{relationcode}
+        where relationid = #{relationid}
+    </update>
+
+    <delete id="deleteRelationItems">
+        DELETE FROM VTTM_SECTION_RELATION_TB
+        <where>
+            relationid = #{relationid}
+        </where>
+    </delete>
+
+
+    <select id="getSectionJson" parameterType="map" resultType="Section">
+        select
+            v.orifilename as file_name,
+            v.assetfilename as registed_name
+        from
+          vttm_video_tb v
+        where v.idx = #{idx}
+    </select>
+
+    <select id="getQaResultsJson" parameterType="map" resultType="com.konantech.spring.domain.section.Section$QaResult">
+        select
+            s.sectionname as visual_period_num,
+            s.sectionid as period_num,
+            s.starttimecode as start_time,
+            s.endtimecode as end_time
+        from
+            vttm_section_info_tb s
+        where
+            s.videoid = #{idx}
+        order by s.startshotid, s.endshotid
+    </select>
+
+    <select id="getRelationJson" parameterType="map" resultType="com.konantech.spring.domain.section.Section$QaResult$RelatedPeriodInfo">
+    select
+        r.object_sectionid related_period,
+        c.code_name as related_type
+    from
+        vttm_section_relation_tb r
+        inner join vttm_code_tb c
+        on r.relationcode = c.code
+    where
+        r.videoid = #{idx}
+    and r.userid = #{userid}
+    and r.subject_sectionid = #{sectionid}
+    order by r.subject_sectionid, r.object_sectionid
+    </select>
+
+    <select id="getDepictionJson" parameterType="map" resultType="com.konantech.spring.domain.section.Section$QaResult$DescriptionInfo">
+    select
+      d.depiction as description
+    from
+      vttm_section_depiction_tb d
+    where
+        d.sectionid = #{sectionid}
+    and d.userid = #{userid}
+    order by d.depictionid;
+    </select>
+
+    <select id="getQaJson" parameterType="map" resultType="com.konantech.spring.domain.section.Section$QaResult$Qa">
+    select
+        q.question
+        ,q.answer
+        ,q.wrong_answer1
+        ,q.wrong_answer2
+        ,q.wrong_answer3
+        ,q.wrong_answer4
+    from vttm_section_qa_tb q
+    where
+        q.sectionid = #{sectionid}
+    and q.userid = #{userid}
+    order by q.questionid
+    </select>
+
+    <select id="getSectionInfoJson" parameterType="map" resultType="com.konantech.spring.domain.section.Qa$QaResultInfo">
+
+        select videoType
+                ,videoid
+                ,vid
+                ,sectionid as period_num
+                ,shotId
+                ,startshotid
+                ,endshotid
+                ,sectionname
+                ,COALESCE(description,'') as description
+                ,shot_contained
+                ,idx
+        from (
+                          SELECT 'scene' AS videoType
+                                  , A.videoid
+                                  , CONCAT(substr(V.title,0, position('.' in V.title)),'_',lpad(cast(DENSE_RANK() over (order by  a.startframeindex) as varchar),3,'0'),'_0000') AS vid
+                                  , 1 as idx
+                                  , a.sectionid
+                                  , 0 as shotId
+                                  , V.title
+                                  , A.startshotid
+                                  , A.endshotid
+                                  , A.sectionname
+                                  , cast(SUBSTR(A.sectionname, 0, POSITION('-' in A.sectionname)) AS int) AS ord
+                                  , null AS shot_contained
+                                  , C.question AS description
+                          FROM vttm_section_info_tb A
+                                   INNER JOIN vttm_video_tb V
+                                              ON A.videoid = V.idx
+                                   LEFT OUTER JOIN vttm_section_qa_tb C
+                                                   ON A.sectionid = C.sectionid AND C.questiontype = 'DESC' and c.userid = #{userid}
+                          WHERE A.videoid = #{idx}
+
+                          union all
+
+                          SELECT 'shot' AS video_type
+                                  , A.videoid
+                                  , CONCAT(substr(V.title,0, position('.' in V.title)),'_',lpad(cast(DENSE_RANK() over (order by  a.startframeindex) as varchar),3,'0'),'_',lpad(cast(cast(SUBSTR(A.sectionname, 0, POSITION('-' in A.sectionname)) AS int) + (B.shotid - A.startshotid) as varchar),4,'0')) AS vid
+                                  , 2 as idx
+                                  , a.sectionid
+                                  , B.shotid
+                                  , V.title
+                                  , A.startshotid
+                                  , A.endshotid
+                                  , A.sectionname
+                                  , cast(SUBSTR(A.sectionname, 0, POSITION('-' in A.sectionname)) AS int) AS ord
+                                  , cast(SUBSTR(A.sectionname, 0, POSITION('-' in A.sectionname)) AS int) + (B.shotid - A.startshotid) AS shot_contained
+                                  , C.question AS description
+                          FROM vttm_section_info_tb A
+                                   INNER JOIN vttm_video_tb V
+                                              ON A.videoid = V.idx
+                                   INNER JOIN vttm_shot_tb B ON B.shotid BETWEEN A.startshotid AND A.endshotid
+                                   LEFT OUTER JOIN vttm_shot_qa_tb C ON B.shotid = C.shotid AND C.questiontype = 'DESC' and c.userid = #{userid}
+                          WHERE A.videoid = #{idx}
+                      ) tb
+        order by ord, shotid, idx
+
+    </select>
+
+    <select id="getShotContained" parameterType="map" resultType="Integer">
+
+        SELECT cast(SUBSTR(A.sectionname, 0, POSITION('-' in A.sectionname)) AS int) + (B.shotid - A.startshotid) AS shot_contained
+        FROM vttm_section_info_tb A
+                 INNER JOIN vttm_shot_tb B ON B.shotid BETWEEN A.startshotid AND A.endshotid
+        WHERE A.videoid = #{videoid}
+          AND A.sectionid = #{sectionid}
+        ORDER BY A.sectionid ASC, B.shotid ASC
+
+    </select>
+
+    <select id="getSectionInfoQa" parameterType="map" resultType="com.konantech.spring.domain.section.Qa$QaResult$QnaInfo">
+
+        select a.questionid AS qid
+                ,questiontype as qa_level
+                ,case when questiontype = '1' or questiontype = '2' then '2'
+                      when questiontype = '3' or questiontype = '4' or questiontype = '5' then '3'
+                      else ''
+                   end q_level_mem
+                ,case when questiontype = '5' then '3'
+                       else questiontype
+                   end q_level_logic
+                ,question as que
+                ,answer as true_ans
+                ,sectionid
+                ,userid
+                ,wrong_answer1
+                ,wrong_answer2
+                ,wrong_answer3
+                ,wrong_answer4
+        from (
+                 select questionid
+                         ,sectionid
+                         ,question
+                         ,answer
+                         ,wrong_answer1
+                         ,wrong_answer2
+                         ,wrong_answer3
+                         ,wrong_answer4
+                         ,userid
+                         ,replace(questiontype,'QNALV','') as questiontype
+                 from vttm_section_qa_tb
+                 where questiontype not in('DESC') and questiontype is not null
+             ) a
+        where a.sectionid = #{sectionid}
+          and a.userid = #{userid}
+
+    </select>
+
+    <select id="getShotInfoQa" parameterType="map" resultType="com.konantech.spring.domain.section.Qa$QaResult$QnaInfo">
+
+        select a.questionid AS qid
+                ,questiontype as qa_level
+                ,case when questiontype = '1' or questiontype = '2' or questiontype = '5' then '2'
+                      when questiontype = '3' or questiontype = '4' then '3'
+                      else ''
+                   end q_level_mem
+                ,case when questiontype = '5' then '1'
+                     else questiontype
+                  end q_level_logic
+                ,question as que
+                ,answer as true_ans
+                ,shotid as sectionid
+                ,userid
+                ,wrong_answer1
+                ,wrong_answer2
+                ,wrong_answer3
+                ,wrong_answer4
+
+        from (
+                 select questionid
+                         ,shotid
+                         ,question
+                         ,answer
+                         ,wrong_answer1
+                         ,wrong_answer2
+                         ,wrong_answer3
+                         ,wrong_answer4
+                         ,userid
+                         ,replace(questiontype,'QNALV','') as questiontype
+                 from vttm_shot_qa_tb
+                 where questiontype not in('DESC') and questiontype is not null
+             ) a
+        where a.shotid = #{shotid}
+          and a.userid = #{userid}
+
+    </select>
+
+</mapper>

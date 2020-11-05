@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+       Copyright 2015-2016 the original author or authors.
+
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+
+-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.konantech.spring.mapper.AuthMapper">
+
+    <select id="readUserByName" resultType="java.util.TreeMap">
+        SELECT
+          userid,
+          username,
+          realname,
+          password
+        FROM
+          VTTM_USER_TB
+        WHERE
+          username = #{username}
+    </select>
+
+    <select id="readAuthority" parameterType="String" resultType="org.springframework.security.core.authority.SimpleGrantedAuthority">
+        SELECT
+          B.rolename
+        FROM
+          VTTM_RELUSERROLE_TB A
+          LEFT JOIN VTTM_ROLE_TB B ON A.roleid = B.roleid
+          LEFT JOIN VTTM_USER_TB C ON C.userid = A.userid
+        WHERE
+          C.username = #{username}
+    </select>
+
+    <insert id="insertCurrentUser" parameterType="map" useGeneratedKeys="true">
+
+        <selectKey keyProperty="agentid" resultType="Integer" order="BEFORE">
+            SELECT COALESCE(max(agentid),0) + 1 FROM VTTM_CURRUSER_TB
+        </selectKey>
+
+        INSERT INTO VTTM_CURRUSER_TB (
+            agentid,
+            userid,
+            logintime,
+            userip
+        ) VALUES (
+            #{agentid},
+            #{userid},
+            cast(TO_CHAR(NOW(),'YYYYMMDDHH24MISS') as bigint),
+            #{userip}
+        )
+    </insert>
+
+    <select id="getDuplUserChk" resultType="java.util.TreeMap">
+        SELECT
+          userid,
+          username,
+          trim(realname) as realname
+        FROM
+        VTTM_USER_TB
+        <where>
+            <if test="userName != null and userName != '' ">
+                username =#{userName}
+            </if>
+        </where>
+    </select>
+
+    <insert id="getPutUser" parameterType="java.util.TreeMap" useGeneratedKeys="true" keyProperty="userid">
+
+        <selectKey keyProperty="userid" resultType="Integer" order="BEFORE">
+            SELECT COALESCE(max(userid),0) + 1 FROM vttm_user_tb
+        </selectKey>
+
+        INSERT INTO vttm_user_tb(
+          userid,
+          username,
+          realname,
+          password,
+          createtime,
+          modifytime,
+          delflag)
+        VALUES( #{userid}, #{username},#{realname}, #{password},  now(), now(), false);
+
+        INSERT INTO vttm_reluserrole_tb(
+          userid,
+          roleid,
+          isheadrole)
+        VALUES( #{userid}, #{userAuth}, false);
+    </insert>
+
+    <select id = "getRoleList" resultType="map">
+      SELECT
+        ROLEID,
+        CAPTION
+      FROM
+        VTTM_ROLE_TB
+      WHERE
+        DELFLAG = FALSE
+      ORDER BY ROLEID
+    </select>
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.konantech.spring.mapper.DownloadMapper">
+    <select id="getSelectImage" parameterType="java.util.LinkedHashMap" resultType="map">
+        select
+        row_number() over ()                        as img_idx
+        , a.idx                                     as video_idx
+        , trim(both '.jpg' from a.image)            as section_idx
+        , trim(both '.jpg' from b.assetfilename)    as img_file_name
+        , b.assetfilepath || '/' || b.assetfilename as img_url
+        , a.userid                                  as user_id
+        , b.shotid                                  as shot_id
+        from (select x.*
+        , json_array_elements(json_build_array(x.vtt_meta_json)) ->> 'image_id' as image
+        from vttm_meta_info_tb x) a
+        inner join vttm_frame_img_tb b
+        on a.idx = b.videoid
+        and a.shotid = b.shotid
+        and a.frameimgid = b.frameimgid
+        where a.idx = #{idx}
+        and a.idx >= 1073
+        and a.vtt_meta_json is not null
+        and a.userid != 'konan'
+        and a.userid = #{userid}
+        and a.shotid = #{shotid}
+        order by section_idx, a.idx,a.shotid
+    </select>
+</mapper>

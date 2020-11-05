@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.konantech.spring.mapper.VisualMapper">
+
+    <select id="getCntRepreImg" parameterType="java.util.TreeMap" resultType="int">
+        SELECT
+        COUNT(*) AS COUNT
+        FROM
+        vttm_rep_img_tb
+        <where>
+            and video_idx = #{repVideoId}
+            and represent_img_seq =  #{repImgSeq}
+            and section_idx = #{repSectionId}
+            and shot_id = #{repShotid}
+        </where>
+
+    </select>
+
+    <select id="getSelectRepImg" parameterType="java.util.LinkedHashMap" resultType="RepImgVo">
+        SELECT
+        a.videoid               as videoid,
+        a.sceneid               as sceneid,
+        a.shotid                as shotid,
+        a.frameimgid            as frameimgid,
+        v.vtt_meta_idx          as vtt_meta_idx,
+        COALESCE(a.assetfilepath,v.assetfilepath) as assetfilepath,
+        COALESCE(a.assetfilename,v.assetfilename) as assetfilename,
+        a.registed_time         as regTime,
+        ( CASE
+        WHEN v.vtt_meta_json
+        IS NOT null
+        THEN v.vtt_meta_json
+        ELSE a.autojson
+        END )                     as repjson,
+        ( CASE
+        WHEN v.vtt_meta_json
+        IS NOT null
+        THEN 'true'
+        ELSE 'false'
+        END )                     as savechk
+        from
+        vttm_frame_img_tb a
+        left join vttm_meta_info_tb v
+        on a.frameimgid = v.frameimgid
+        and v.userid =
+        <choose>
+            <when test="otheruserid!=null and otheruserid!=''">
+                #{otheruserid}
+            </when>
+            <otherwise>
+                #{userid}
+            </otherwise>
+        </choose>
+        <where>
+            and a.videoid = #{videoid}
+            <if test="sceneid != null and sceneid != ''">
+                and a.sceneid = #{sceneid}
+            </if>
+            <if test="shotid != null and shotid != ''">
+                and a.shotid = #{shotid}
+            </if>
+            <if test="frameimgid != null and frameimgid != ''">
+                and a.frameimgid = #{frameimgid}
+            </if>
+        </where>
+    </select>
+
+    <!--<select id="getSelectRepImg" parameterType="java.util.LinkedHashMap" resultType="RepImgVo">-->
+        <!--SELECT-->
+		    <!--a.shot_id               as shotid,-->
+            <!--a.represent_img_idx     as repIdx,-->
+            <!--a.represent_img_seq     as repImgSeq,-->
+            <!--a.image_file_id         as repFileId,-->
+            <!--a.registed_time         as regTime,-->
+            <!--a.video_idx             as repVideoId,-->
+            <!--a.img_url               as repImgUrl,-->
+            <!--a.section_idx           as repSectionId,-->
+	    <!--( CASE-->
+	         <!--WHEN b.vtt_meta_json-->
+	      	<!--IS NOT null-->
+	      <!--THEN b.vtt_meta_json-->
+	      <!--ELSE a.represent_img_json-->
+	      <!--END )                     as repJson,-->
+	    <!--( CASE-->
+	      <!--WHEN b.vtt_meta_json-->
+	      	<!--IS NOT null-->
+	      <!--THEN 'true'-->
+	      <!--ELSE 'false'-->
+	      <!--END )                     as savedChk-->
+        <!--from vttm_rep_img_tb a-->
+        <!--left join (select meta.*,-->
+                      <!--cast((json_array_elements(vtt_meta_json)  ->> 'period_frame_num') as numeric) as period_frame_num-->
+        		   <!--FROM vttm_meta_info_tb meta) b-->
+        <!--on a.video_idx = b.idx-->
+            <!--and a.shot_id = b.shotid-->
+            <!--and a.represent_img_seq = b.period_frame_num-->
+            <!--and b.userid =-->
+        <!--<choose>-->
+            <!--<when test="otheruserid!=null and otheruserid!=''">-->
+                <!--#{otheruserid}-->
+            <!--</when>-->
+            <!--<otherwise>-->
+                <!--#{userid}-->
+            <!--</otherwise>-->
+        <!--</choose>-->
+        <!--where a.video_idx = #{videoid}-->
+        <!--and a.shot_id = #{shotid}-->
+        <!--<if test="repImgSeq != null and repImgSeq != '' ">-->
+            <!--and a.represent_img_seq =#{repImgSeq}-->
+        <!--</if>-->
+
+    <!--</select>-->
+
+    <insert id="getPutRepreImg" parameterType="java.util.TreeMap" useGeneratedKeys="true" keyProperty="represent_img_idx">
+        <selectKey keyProperty="frameimgid" resultType="Integer" order="BEFORE">
+            select
+            COALESCE
+            (
+                (
+                    SELECT frameimgid
+                    FROM vttm_frame_img_tb
+                    where frameimgid = #{frameimgid}
+                    ), (
+                    SELECT COALESCE(max(frameimgid), 0) + 1
+                    FROM vttm_frame_img_tb
+                )
+            )
+        </selectKey>
+
+        INSERT INTO vttm_frame_img_tb
+        (frameimgid, shotid, sceneid, videoid, autojson, assetfilepath, assetfilename)
+        VALUES( #{frameimgid}, #{shotid}, #{sceneid}, #{videoid},#{autojson},#{assetfilepath},#{assetimgfilename})
+        ON CONFLICT (frameimgid)
+        DO
+        UPDATE
+        SET autojson = #{autojson}
+    </insert>
+
+    <!--<insert id="getPutRepreImg" parameterType="java.util.TreeMap" useGeneratedKeys="true" keyProperty="represent_img_idx">-->
+        <!--<selectKey keyProperty="represent_img_idx" resultType="Integer" order="BEFORE">-->
+            <!--select-->
+            <!--COALESCE-->
+            <!--(-->
+                <!--(-->
+                    <!--SELECT represent_img_idx-->
+                    <!--FROM vttm_rep_img_tb-->
+                    <!--where video_idx = #{repVideoId}-->
+                    <!--and shot_id = #{repShotid}-->
+                    <!--and represent_img_seq = #{repImgSeq}-->
+                <!--), (-->
+                    <!--SELECT COALESCE(max(represent_img_idx), 0) + 1-->
+                    <!--FROM vttm_rep_img_tb-->
+                <!--)-->
+            <!--)-->
+        <!--</selectKey>-->
+
+          <!--INSERT INTO vttm_rep_img_tb-->
+          <!--(represent_img_idx, represent_img_seq, image_file_id, represent_img_json,video_idx,img_url,section_idx,shot_id)-->
+          <!--VALUES( #{represent_img_idx}, #{repImgSeq}, #{repFileId}, #{repJson},#{repVideoId},#{repImgUrl},#{repSectionId},#{repShotid})-->
+          <!--ON CONFLICT (represent_img_idx)-->
+          <!--DO-->
+          <!--UPDATE-->
+          <!--SET represent_img_json = #{repJson}, image_file_id=#{repFileId}, img_url=#{repImgUrl}-->
+    <!--</insert>-->
+
+    <insert id="getPutMetaInfo" parameterType="java.util.TreeMap" useGeneratedKeys="true" keyProperty="vtt_meta_idx">
+        <selectKey keyProperty="vtt_meta_idx" resultType="Integer" order="BEFORE">
+            select
+            COALESCE
+            (
+                (
+                    SELECT vtt_meta_idx FROM vttm_meta_info_tb
+                    where shotid = #{shotid}
+                    and frameimgid = #{frameimgid}
+                    and userid = #{userid}
+                    ), (
+                    SELECT COALESCE(max(vtt_meta_idx),0) + 1 FROM vttm_meta_info_tb
+                )
+            )
+        </selectKey>
+        INSERT INTO vttm_meta_info_tb (vtt_meta_idx, idx, userid, shotid, vtt_meta_json, registed_time, updated_time)
+        INSERT INTO vttm_meta_info_tb (vtt_meta_idx, videoid, sceneid, shotid, frameimgid, userid, vtt_meta_json, registed_time)
+        VALUES(#{vtt_meta_idx}, #{videoid}, #{sceneid}, #{shotid}, #{frameimgid}, #{userid}, #{vtt_meta_json}, now())
+        ON CONFLICT (vtt_meta_idx)
+        DO
+        UPDATE
+        SET
+        vtt_meta_json = #{vtt_meta_json}
+    </insert>
+
+    <!--<insert id="getPutMetaInfo" parameterType="java.util.TreeMap" useGeneratedKeys="true" keyProperty="vtt_meta_idx">-->
+        <!--<selectKey keyProperty="vtt_meta_idx" resultType="Integer" order="BEFORE">-->
+            <!--select-->
+            <!--COALESCE-->
+            <!--(-->
+                <!--(-->
+                    <!--SELECT vtt_meta_idx FROM vttm_meta_info_tb-->
+                    <!--where idx = #{idx}-->
+                    <!--and userid = #{userId}-->
+                    <!--and shotid = #{shotId}-->
+                <!--), (-->
+                    <!--SELECT COALESCE(max(vtt_meta_idx),0) + 1 FROM vttm_meta_info_tb-->
+                <!--)-->
+            <!--)-->
+        <!--</selectKey>-->
+        <!--INSERT INTO vttm_meta_info_tb (vtt_meta_idx, idx, userid, shotid, vtt_meta_json, registed_time, updated_time)-->
+        <!--VALUES(#{vtt_meta_idx}, #{idx}, #{userId}, #{shotId}, #{vtt_meta_json}, now(),  now())-->
+        <!--ON CONFLICT (idx, userid, shotid)-->
+        <!--DO-->
+        <!--UPDATE-->
+        <!--SET-->
+          <!--vtt_meta_json = #{vtt_meta_json}-->
+        <!--,migrationflag = false-->
+        <!--,updated_time= now()-->
+    <!--</insert>-->
+
+    <select id="getSelectMetaInfo" parameterType="java.util.TreeMap" resultType="java.util.LinkedHashMap">
+        SELECT vtt_meta_idx, idx as videoid, userid, vtt_meta_json, registed_time,shotid
+        FROM vttm_meta_info_tb
+        WHERE idx = #{videoid}
+        and shotid = #{shotid}
+        and frameimgid = #{frameimgid}
+        AND userid =
+        <choose>
+            <when test="otheruserid!=null and otheruserid!=''">
+                #{otheruserid}
+            </when>
+            <otherwise>
+                #{userid}
+            </otherwise>
+        </choose>
+    </select>
+
+    <!--<select id="getSelectMetaInfo" parameterType="java.util.TreeMap" resultType="java.util.LinkedHashMap">-->
+      <!--SELECT vtt_meta_idx, idx, userid, vtt_meta_json, registed_time, updated_time,shotid-->
+      <!--FROM vttm_meta_info_tb-->
+      <!--WHERE idx = #{idx}-->
+      <!--AND userid =-->
+        <!--<choose>-->
+            <!--<when test="otheruserid!=null and otheruserid!=''">-->
+                <!--#{otheruserid}-->
+            <!--</when>-->
+            <!--<otherwise>-->
+                <!--#{userId}-->
+            <!--</otherwise>-->
+        <!--</choose>-->
+      <!--and shotid = #{shotId}-->
+    <!--</select>-->
+
+    <select id="getJsonData" parameterType="java.util.TreeMap" resultType="java.lang.String">
+        SELECT
+            M.VTT_META_JSON
+        FROM
+            VTTM_SHOT_TB S
+            INNER JOIN VTTM_META_INFO_TB M
+                ON S.VIDEOID = M.IDX
+                AND S.SHOTID = M.SHOTID
+        WHERE S.VIDEOID = #{idx}
+        AND M.USERID = #{userid}
+        AND S.DELFLAG = FALSE
+        ORDER BY S.SHOTID
+    </select>
+
+    <select id="getShotMetaJsonData" parameterType="java.util.TreeMap" resultType="java.lang.String">
+        SELECT M.VTT_META_JSON
+          FROM VTTM_SHOT_TB S
+         INNER JOIN VTTM_META_INFO_TB M
+            ON S.VIDEOID = M.IDX AND S.SHOTID = M.SHOTID
+         WHERE S.VIDEOID = #{idx}
+           AND S.SHOTID = #{shotid}
+           AND M.USERID = #{userid}
+           AND S.DELFLAG = FALSE
+         ORDER BY S.SHOTID
+        ;
+    </select>
+
+    <select id="getRepImgInfo" parameterType="User" resultType="java.util.TreeMap">
+      select video.idx,video.title,video.content,video.orifilename,shot.starttimecode,shot.endtimecode,
+              repImg.image_file_id,repImg.represent_img_json,repImg.section_idx,repImg.shot_id
+      from vttm_video_tb video,vttm_shot_tb shot,vttm_rep_img_tb repImg
+      <where>
+          and repImg.represent_img_idx =#{representImgIdx}
+          and video.idx= #{repVideoId}
+          and video.idx =repImg.video_idx
+          and shot.shotid = repImg.shot_id
+          and video.idx = shot.videoid
+      </where>
+    </select>
+
+    <insert id="getPutSecInfo" parameterType="java.util.TreeMap" useGeneratedKeys="true" keyProperty="vtt_meta_idx">
+        <selectKey keyProperty="sectionmetaid" resultType="Integer" order="BEFORE">
+            SELECT COALESCE(max(sectionmetaid),0) + 1 FROM vttm_section_info_tb
+        </selectKey>
+        INSERT INTO vttm_section_info_tb
+        (sectionmetaid, videoid, sectionmetajson, userid, registed_time, updated_time)
+        VALUES(#{sectionmetaid}, #{videoId}, #{json}, #{userId}, now(), now())
+        ON CONFLICT (videoId,userid)
+        DO
+        UPDATE
+        SET sectionmetajson = #{json},updated_time= now()
+    </insert>
+
+    <select id="getSecInfo" parameterType="java.util.Map" resultType="java.util.LinkedHashMap">
+        SELECT sectionmetaid, videoid,
+          json_array_elements(sectionmetajson  -> 'qaResults') -> 'periodNum' as periodNum,
+          json_array_elements(sectionmetajson  -> 'qaResults')-> 'visualPeriodNum' as visualPeriodNum,
+          json_array_elements(sectionmetajson  -> 'qaResults')->'startTime' as startTime,
+          json_array_elements(sectionmetajson  -> 'qaResults')->'endTime' as endTime,
+          userid, registed_time, updated_time
+        FROM public.vttm_section_info_tb
+        <where>
+          and videoid = #{videoId}
+          and userid = #{userId}
+        </where>
+    </select>
+
+    <delete id="deleteRepImg" parameterType="map" >
+      delete vttm_rep_img_tb where videoid = #{videoid} and shotid = #{shotid} and represent_img_seq =#{repseq}
+    </delete>
+
+    <select id="getWorkerList" parameterType="map" resultType="java.util.Map">
+        select distinct
+          u.username
+        from vttm_meta_info_tb meta
+        inner join vttm_user_tb u
+        on meta.userid = u.username
+        where meta.idx = #{videoid}
+    </select>
+
+
+    <select id="getMetaShotInfo" parameterType="map" resultType="java.util.Map">
+        SELECT replace(A.ASSETFILENAME, '.jpg', '') AS shot_id
+              ,A.STARTTIMECODE AS start_time
+              ,A.ENDTIMECODE   AS end_time
+              ,A.SHOTID        AS shotid
+          FROM VTTM_SHOT_TB A
+         WHERE A.VIDEOID = #{idx}
+           AND A.DELFLAG = FALSE
+           AND EXISTS (SELECT 1 FROM VTTM_META_INFO_TB B
+                        WHERE A.SHOTID = B.SHOTID AND A.VIDEOID = B.IDX
+                          AND B.USERID = #{userid})
+         order by start_time
+    </select>
+
+    <select id="getShotList" parameterType="map" resultType="java.util.LinkedHashMap">
+        SELECT replace(A.ASSETFILENAME, '.jpg', '') AS shot_id
+              ,A.STARTTIMECODE AS start_time
+              ,A.ENDTIMECODE   AS end_time
+          FROM VTTM_SHOT_TB A
+         WHERE A.VIDEOID = #{idx}
+           AND A.DELFLAG = FALSE
+         order by start_time
+    </select>
+
+    <!-- frameimg -->
+    <select id="getFrameImageInfo" parameterType="map" resultType="map">
+        select
+        fi.videoid,
+        fi.sceneid,
+        fi.shotid,
+        fi.frameimgid,
+        COALESCE(fi.assetfilepath,v.assetfilepath) as assetfilepath,
+        COALESCE(fi.assetfilename,v.assetfilename) as assetfilename,
+        (CASE
+        WHEN v.vtt_meta_json IS NOT null
+        THEN 'true'
+        ELSE 'false'
+        END )                     as savechk,
+        v.vtt_meta_idx,
+        v.userid
+        from
+        vttm_frame_img_tb fi
+        left join vttm_meta_info_tb v
+        on fi.frameimgid = v.frameimgid
+        and v.userid =
+        <choose>
+            <when test="otheruserid!=null and otheruserid!=''">
+                #{otheruserid}
+            </when>
+            <otherwise>
+                #{userid}
+            </otherwise>
+        </choose>
+        where
+        fi.videoid = #{videoid}
+        and fi.shotid = #{shotid}
+    </select>
+
+    <!-- 시각정보 편집 저장 -->
+    <insert id="getPutMetaInfo2" parameterType="java.util.TreeMap" useGeneratedKeys="true" keyProperty="vtt_meta_idx">
+
+        <selectKey keyProperty="vtt_meta_idx" resultType="Integer" order="BEFORE">
+            select
+            COALESCE
+            (
+                (
+                    SELECT vtt_meta_idx FROM vttm_meta_info_tb
+                    where shotid = #{shotid}
+                    and frameimgid = #{frameimgid}
+                    and userid = #{userid}
+                ), (
+                    SELECT COALESCE(max(vtt_meta_idx),0) + 1 FROM vttm_meta_info_tb
+                )
+            )
+        </selectKey>
+
+        INSERT INTO vttm_meta_info_tb (vtt_meta_idx, idx, shotid, frameimgid, userid, vtt_meta_json, registed_time, updated_time)
+        VALUES(#{vtt_meta_idx}, #{videoid}, #{shotid}, #{frameimgid}, #{userid}, #{vtt_meta_json}, now(), now())
+
+    </insert>
+
+    <insert id="getPutUpdateMetaInfo2" parameterType="java.util.TreeMap">
+        UPDATE vttm_meta_info_tb SET vtt_meta_json = #{vtt_meta_json} WHERE vtt_meta_idx=#{vtt_meta_idx}
+    </insert>
+
+    <select id="getSelectPrevRepImg" parameterType="java.util.LinkedHashMap" resultType="RepImgVo">
+        SELECT
+        v.idx                   as videoid,
+        0                      as sceneid,
+        v.shotid                as shotid,
+        0                      as frameimgid,
+        v.vtt_meta_idx          as vtt_meta_idx,
+        ''                      as assetfilepath,
+        ''                      as assetfilename,
+        ''                      as regTime,
+        v.vtt_meta_json         as repjson,
+        'true'                  as savechk
+        from vttm_meta_info_tb v
+        WHERE v.idx = #{videoid}
+        and v.shotid = #{shotid}
+        and v.frameimgid = #{frameimgid}
+        and v.userid = #{selectuserid}
+        order by length(v.vtt_meta_json::TEXT) desc
+        limit 1
+    </select>
+
+    <select id="getSelectPrevMetaInfo" parameterType="java.util.TreeMap" resultType="java.util.LinkedHashMap">
+        SELECT vtt_meta_idx, idx as videoid, userid, vtt_meta_json, registed_time,shotid
+        FROM vttm_meta_info_tb
+        WHERE idx = #{videoid}
+        and shotid = #{shotid}
+        and frameimgid = #{frameimgid}
+        and userid = #{selectuserid}
+        order by length(vtt_meta_json::TEXT) desc
+        limit 1
+    </select>
+
+    <select id="getSelectFrameImgInfo" parameterType="java.util.TreeMap" resultType="java.util.LinkedHashMap">
+        SELECT frameimgid
+        FROM vttm_frame_img_tb
+        WHERE videoid = #{videoid}
+        and shotid = #{shotid}
+        and assetfilename = #{assetimgfilename}
+        order by frameimgid desc
+        limit 1;
+    </select>
+
+    <select id="getVidInfo" parameterType="java.util.TreeMap" resultType="String">
+
+        select tb.vid
+        from (
+                 SELECT
+                     CONCAT(substr(a.title,0, position('.' in a.title)),'_',
+                            lpad(R.vidno,3,'0'),'_',lpad(cast(cast(SUBSTR(a.sectionname, 0, POSITION('-' in A.sectionname)) AS int) + (a.shotid - a.startshotid) as varchar),4,'0')) AS vid
+                 FROM
+                     ( SELECT V.title
+                               , A.sectionid
+                               , A.sectionname
+                               , B.shotid
+                               , A.startshotid
+                               , M.USERID
+                       FROM vttm_section_info_tb A
+                                INNER JOIN vttm_video_tb V
+                                           ON A.videoid = V.idx
+                                INNER JOIN vttm_shot_tb B ON B.shotid BETWEEN A.startshotid AND A.endshotid
+                                INNER JOIN VTTM_META_INFO_TB M ON B.VIDEOID = M.IDX AND B.SHOTID = M.SHOTID
+                       WHERE A.videoid = #{idx}
+                         and B.shotid = #{shotid}
+                         and M.USERID = #{userid}
+                         AND B.DELFLAG = FALSE) a
+                         INNER JOIN (
+                         SELECT A.sectionid,cast(DENSE_RANK() over (order by  a.startframeindex) as varchar) AS vidno
+                         FROM vttm_section_info_tb A
+                         WHERE A.videoid = #{idx}) R ON A.sectionid = R.sectionid
+                 ORDER BY A.sectionid
+             ) tb
+        group by vid
+
+    </select>
+</mapper>

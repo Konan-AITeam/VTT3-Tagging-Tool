@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.konantech.spring.mapper.SubtitleMapper">
+
+    <select id="getSubtitleList" parameterType="map" resultType="java.util.Map">
+
+        SELECT
+        subtitleid,
+        videoid,
+        starttimecode,
+        endtimecode,
+        person,
+        subtitle
+        FROM
+        VTTM_SUBTITLE_TB
+        <where>
+            videoid = #{idx}
+            and userid = #{userid}
+        </where>
+        ORDER BY starttimecode asc
+
+    </select>
+
+    <insert id="putSubtitleItem" parameterType="map" useGeneratedKeys="true" keyProperty="subtitleid">
+        <selectKey keyProperty="subtitleid" resultType="Integer" order="BEFORE">
+            SELECT NEXTVAL('SEQ_SUBTITLE_TB')
+        </selectKey>
+        INSERT INTO VTTM_SUBTITLE_TB (
+        subtitleid,
+        videoid,
+        starttimecode,
+        endtimecode,
+        person,
+        subtitle,
+        userid
+        ) values (
+        #{subtitleid},
+        #{videoid},
+        #{starttimecode},
+        #{endtimecode},
+        #{person},
+        #{subtitle},
+        #{userid}
+        )
+    </insert>
+
+    <update id="setSubtitleItem" parameterType="map">
+        UPDATE VTTM_SUBTITLE_TB
+        SET
+            starttimecode = #{starttimecode},
+            endtimecode = #{endtimecode},
+            person = #{person},
+            subtitle = #{subtitle}
+        where subtitleid = #{subtitleid}
+    </update>
+
+    <delete id="deleteSubtitleItems">
+        DELETE FROM VTTM_SUBTITLE_TB
+        <where>
+            subtitleid = #{subtitleid}
+        </where>
+    </delete>
+
+    <select id="getSubtitleJson" parameterType="map" resultType="Subtitle">
+        select
+            v.orifilename as file_name,
+            v.assetfilename as registed_name
+        from
+            vttm_video_tb v
+        where v.idx = #{idx}
+    </select>
+
+    <select id="getSubtitleResultsJson" parameterType="map" resultType="com.konantech.spring.domain.subtitle.Subtitle$SubtitleResult">
+        select
+            s.starttimecode as st,
+            s.endtimecode as et,
+            c.code_name as speaker,
+            s.subtitle as utter
+        from vttm_subtitle_tb s
+                 inner join vttm_code_tb c
+                            on s.person = c.code
+        where
+            s.videoid = #{idx}
+          and s.userid = #{userid}
+    </select>
+</mapper>
