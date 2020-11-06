@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 @Component
 @Aspect
 public class LogsAspect {
-
     private static Logger log = LoggerFactory.getLogger(LogsAspect.class);
 
     @Before("execution(* com.konantech.spring.controller.rest.*.*(..))")
