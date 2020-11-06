@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 @Aspect
 public class LogsAspect {
     private static Logger log = LoggerFactory.getLogger(LogsAspect.class);
-    private int count = 0;
+    private int count = 0; // count 변수
     @Before("execution(* com.konantech.spring.controller.rest.*.*(..))")
     public void restControllerlogsAspect(JoinPoint joinPoint) {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
