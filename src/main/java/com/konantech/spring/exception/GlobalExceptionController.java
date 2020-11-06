@@ -26,4 +26,5 @@ public class GlobalExceptionController {
     public ObjectResponse<NotFoundException> handleKonanException(NotFoundException ex) {
         return new ObjectResponse<>(ex, HttpStatus.NOT_FOUND);
     }
+    
 }
