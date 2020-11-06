@@ -45,6 +45,7 @@ public class ApiException extends Exception {
         this.code = code;
     }
 
+    
     @JsonProperty("code")
     public int getCode() {
         return code;
