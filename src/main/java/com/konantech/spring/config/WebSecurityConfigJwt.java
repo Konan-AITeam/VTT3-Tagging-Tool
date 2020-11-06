@@ -91,4 +91,5 @@ public class WebSecurityConfigJwt extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(authService).passwordEncoder(authService.passwordEncoder());
     }
+	
 }
