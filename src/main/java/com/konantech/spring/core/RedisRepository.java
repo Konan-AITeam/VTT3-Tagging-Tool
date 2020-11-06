@@ -20,7 +20,7 @@ public class RedisRepository {
     public boolean pushObject(String key, Object value) {
         try {
             redisTemplate.opsForList().leftPush(key, value);
-            log.debug("SET expire:" + redisTemplate.getExpire(key) + " ," + key + " ," + value);
+            log.debug("SET expire: " + redisTemplate.getExpire(key) + " ," + key + " ," + value);
             return true;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -31,7 +31,7 @@ public class RedisRepository {
     public Object popObject(String key) {
         try {
             Object value = redisTemplate.opsForList().rightPop(key);
-            log.debug("GET expire:" + redisTemplate.getExpire(key) + " ," + key + " ," + value);
+            log.debug("GET expire: " + redisTemplate.getExpire(key) + " ," + key + " ," + value);
             return value;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -43,7 +43,7 @@ public class RedisRepository {
         try {
             Long size = redisTemplate.opsForList().size(key);
             List<Object> result = redisTemplate.opsForList().range(key, 0, size);
-            log.debug("GET expire:" + redisTemplate.getExpire(key) + " ," + key + " ," + size);
+            log.debug("GET expire: " + redisTemplate.getExpire(key) + " ," + key + " ," + size);
             return result;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -63,7 +63,7 @@ public class RedisRepository {
             if(second > 0) {
                 redisTemplate.expire(key, second, TimeUnit.SECONDS);
             }
-            log.debug("SET expire:" + redisTemplate.getExpire(key) + " ," + key + " ," + value);
+            log.debug("SET expire: " + redisTemplate.getExpire(key) + " ," + key + " ," + value);
             return true;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -74,7 +74,7 @@ public class RedisRepository {
     public Object getObject(String key) {
         try {
             Object value = redisTemplate.opsForValue().get(key);
-            log.debug("GET expire:" + redisTemplate.getExpire(key) + " ," + key + " ," + value);
+            log.debug("GET expire: " + redisTemplate.getExpire(key) + " ," + key + " ," + value);
             return value;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
