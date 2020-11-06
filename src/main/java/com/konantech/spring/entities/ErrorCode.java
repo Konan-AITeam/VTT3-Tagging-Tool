@@ -25,8 +25,7 @@ public interface ErrorCode {
     int ERR_7005_NOT_SELECT_AGENT               = 7005; // 검색할 에이전트가 선택되지 않음
     int ERR_7006_ALREADY_ADDED_TO_USER          = 7006; // 해당 유저에게 이미 추가되어 있는 슬랙 서비스
     int ERR_7007_ACCESS_ERROR                   = 7007; // 유효하지 않은 코드
-    int ERR_7010_COMPSERVER_ERROR               = 7010; // 콤포넌트 오류
-
+    int ERR_7010_COMPSERVER_ERROR               = 7010; // 컴포넌트 오류
 
     // Agent
     int ERR_8005_FILE_NOT_FOUND                 = 8005; // 존재하지 않는 파일
