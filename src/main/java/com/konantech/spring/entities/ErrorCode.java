@@ -30,5 +30,6 @@ public interface ErrorCode {
     // Agent
     int ERR_8005_FILE_NOT_FOUND                 = 8005; // 존재하지 않는 파일
     int ERR_8999_UNKNOWN                        = 8999; // 기타 에러
-
+    int ERR_TEST                                = 0000; // error
+    
 }
