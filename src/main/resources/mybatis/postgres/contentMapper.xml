@@ -11,7 +11,7 @@
         FROM
         VTTM_VIDEO_TB
         <where>
-
+            display = true
         </where>
     </select>
 
@@ -120,17 +120,17 @@
     <update id="updateContentItem" parameterType="map">
         UPDATE VTTM_VIDEO_TB
         <set>
-            <if test="objectid != null and objectid != '' ">objectid = #{objectid},</if>
-            <if test="assetfilepath != null and assetfilepath != '' ">assetfilepath = #{assetfilepath},</if>
-            <if test="assetfilename != null and assetfilename != '' ">assetfilename = #{assetfilename},</if>
-            <if test="assetfilesize != null and assetfilesize != '' ">assetfilesize = #{assetfilesize},</if>
-            <if test="orifilename != null and orifilename != '' ">orifilename = #{orifilename},</if>
-            <if test="mediainfo != null and mediainfo != '' ">mediainfo = cast(#{mediainfo} as jsonb),</if>
-            <if test="catalogstatus != null and catalogstatus != '' ">catalogstatus = #{catalogstatus},</if>
-            <if test="catalogendtime != null and catalogendtime != '' ">catalogendtime = #{catalogendtime},</if>
-            <if test="volumewin != null and volumewin != '' ">volumewin = #{volumewin},</if>
-            <if test="volumeetc != null and volumeetc != '' ">volumeetc = #{volumeetc},</if>
-            <if test="display != null and display != '' ">display = #{display},</if>
+            <if test="objectid != null and objectid != '' ">objectid = #{objectid}</if>
+            <if test="assetfilepath != null and assetfilepath != '' ">assetfilepath = #{assetfilepath}</if>
+            <if test="assetfilename != null and assetfilename != '' ">assetfilename = #{assetfilename}</if>
+            <if test="assetfilesize != null and assetfilesize != '' ">assetfilesize = #{assetfilesize}</if>
+            <if test="orifilename != null and orifilename != '' ">orifilename = #{orifilename}</if>
+            <if test="mediainfo != null and mediainfo != '' ">mediainfo = cast(#{mediainfo} as jsonb)</if>
+            <if test="catalogstatus != null and catalogstatus != '' ">catalogstatus = #{catalogstatus}</if>
+            <if test="catalogendtime != null and catalogendtime != '' ">catalogendtime = #{catalogendtime}</if>
+            <if test="volumewin != null and volumewin != '' ">volumewin = #{volumewin}</if>
+            <if test="volumeetc != null and volumeetc != '' ">volumeetc = #{volumeetc}</if>
+            <if test="display != null and display != '' ">display = #{display}</if>
         </set>
         <where>
             idx = #{idx}
