@@ -86,6 +86,7 @@ public class SectionController {
      */
     @RequestMapping(value = "/section/getQaSectionList")
     public String getQaSectionList(Model model, HttpServletRequest request, Principal principal) throws Exception {
+
         Map<String, String> param = RequestUtils.getParameterMap(request);
         List<Map> list = sectionService.getSectionList(request, principal);
         model.addAttribute("qaSectionList", list);
