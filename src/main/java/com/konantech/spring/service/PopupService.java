@@ -43,6 +43,7 @@ public class PopupService {
     }
 
     public List<Map> getSectionList(HttpServletRequest request, Principal principal) {
+
         String idx = RequestUtils.getParameter(request, "idx");
         HashMap<String, String> param = new HashMap<>();
         param.put("userid", "konan");
@@ -62,6 +63,7 @@ public class PopupService {
     }
 
     public List<Map> getQuestionList(HttpServletRequest request, Principal principal) {
+
         String sectionid = RequestUtils.getParameter(request, "sectionid");
         HashMap<String, String> param = new HashMap<>();
         param.put("userid", "konan");
