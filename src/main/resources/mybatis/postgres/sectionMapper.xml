@@ -23,6 +23,7 @@
     </select>
 
     <select id="getSectionOfSceneList" parameterType="map" resultType="java.util.Map">
+
         SELECT
         sectionid,
         videoid,
@@ -40,6 +41,7 @@
             AND sectionid = #{sectionid}
         </where>
         ORDER BY startshotid, endshotid asc
+
     </select>
 
     <insert id="putSectionItem" parameterType="map" useGeneratedKeys="true" keyProperty="sectionid">

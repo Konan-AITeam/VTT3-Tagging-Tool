@@ -69,6 +69,7 @@
                         </ul>
                         <div class="clearfix"></div>
                     </div>
+
                     <div class="x_content" id="scrollImgDiv">
                         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 videobox">
                             <video id="videojs" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" data-setup='{ "playbackRates" : [0.5, 1.0, 1.5, 2.0] }' style="width: 100%; height: 100%;"></video>
