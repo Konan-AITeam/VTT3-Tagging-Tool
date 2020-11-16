@@ -64,6 +64,7 @@ public class SubtitleController {
      */
     @RequestMapping(value = "/subtitle/subtitleList")
     public String getQaSectionList(Model model, HttpServletRequest request, Principal principal) throws Exception {
+
         Map<String,String> param = RequestUtils.getParameterMap(request);
 
         //등장인물코드
