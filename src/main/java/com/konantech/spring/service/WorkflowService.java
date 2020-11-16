@@ -161,6 +161,7 @@ public class WorkflowService {
         String json = mapper.writeValueAsString(map.get("paramlist"));
         List<CompJobParamProperty> list = mapper.readValue(json, new TypeReference<List<CompJobParamProperty>>() { });
         Map<String, Object> resultMap = new HashMap<>();
+
         for( CompJobParamProperty prop : list ) {
             if (StringUtils.equals(prop.getType(), "mainkey")) {
                 resultMap.put(prop.getField(), workflowHisTB.getMainassetid());
