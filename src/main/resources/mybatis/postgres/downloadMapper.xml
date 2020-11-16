@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.konantech.spring.mapper.DownloadMapper">
     <select id="getSelectImage" parameterType="java.util.LinkedHashMap" resultType="map">
+
         select
         row_number() over ()                        as img_idx
         , a.idx                                     as video_idx
@@ -24,5 +25,6 @@
         and a.userid = #{userid}
         and a.shotid = #{shotid}
         order by section_idx, a.idx,a.shotid
+
     </select>
 </mapper>
