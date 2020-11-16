@@ -22,8 +22,6 @@
                         </c:forEach>
 <script>
 
-
-
     var offset = parseInt("${listResponse.offset}");
     var limit = parseInt("${listResponse.limit}");
     var total_count = parseInt("${listResponse.total}");
