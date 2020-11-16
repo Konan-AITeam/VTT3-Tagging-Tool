@@ -35,6 +35,7 @@
     </select>
 
     <select id="readAuthority" parameterType="String" resultType="org.springframework.security.core.authority.SimpleGrantedAuthority">
+
         SELECT
           B.rolename
         FROM
@@ -43,6 +44,7 @@
           LEFT JOIN VTTM_USER_TB C ON C.userid = A.userid
         WHERE
           C.username = #{username}
+
     </select>
 
     <insert id="insertCurrentUser" parameterType="map" useGeneratedKeys="true">
