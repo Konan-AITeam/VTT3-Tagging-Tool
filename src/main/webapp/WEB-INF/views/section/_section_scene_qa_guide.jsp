@@ -34,6 +34,7 @@
                         <li class="list-group-item">Please use only the names specified in the character guide, such as Maru, Eungi and etc.</li>
                     </ul>
                 </div>
+
                 <div role="tabpanel" class="tab-pane fade" id="QA1GuideDiv" aria-labelledby="QA1Tab">
                     <h3>Scene Q&A (Level 3) 가이드라인</h3>
                     <ul class="list-group list-group-flush" style="font-size: 1.2em;">
