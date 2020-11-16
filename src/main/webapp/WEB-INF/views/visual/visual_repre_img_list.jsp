@@ -31,6 +31,7 @@
                     </select>
                 </div>
                 </sec:authorize>
+
                 <div class="img-shot-select">
                     <select id="repImgSelect" class="form-control">
                         <option value>
