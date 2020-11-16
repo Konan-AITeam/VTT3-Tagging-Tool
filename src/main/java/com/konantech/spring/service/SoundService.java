@@ -29,6 +29,7 @@ public class SoundService {
     }
 
     public int putSoundList(HttpServletRequest request, Principal principal) throws Exception {
+
         String videoid = RequestUtils.getParameter(request, "idx");
         String[] soundid = RequestUtils.getParameterValues(request, "soundid");
         String[] starttimecode = RequestUtils.getParameterValues(request, "starttimecode");
@@ -36,6 +37,7 @@ public class SoundService {
         String[] soundtype = RequestUtils.getParameterValues(request, "soundtype");
         String[] delflag = RequestUtils.getParameterValues(request, "delflag");
         int result = 0;
+
         for (int i = 0; i < soundid.length; i++) {
             HashMap<String, String> param = new HashMap<>();
             param.put("soundid", soundid[i]);
