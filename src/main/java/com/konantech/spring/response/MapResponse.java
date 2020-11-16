@@ -2,6 +2,7 @@ package com.konantech.spring.response;
 
 import lombok.Data;
 
+
 @Data
 public class MapResponse {
     String result;

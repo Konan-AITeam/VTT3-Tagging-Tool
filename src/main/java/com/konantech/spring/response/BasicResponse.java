@@ -2,8 +2,8 @@ package com.konantech.spring.response;
 
 import lombok.Data;
 import org.springframework.http.HttpStatus;
-
 import java.io.Serializable;
+
 
 @Data
 public class BasicResponse implements Serializable {
