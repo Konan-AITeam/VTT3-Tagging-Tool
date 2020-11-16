@@ -14,6 +14,7 @@
         </div>
     </div>
 </c:forEach>
+
 <c:forEach begin="1" end="${3-depictionList.size()}" step="1" varStatus="status">
     <div class="form-group edit-form">
         <label class="control-label col-md-1 col-sm-1 col-xs-12"> 구간묘사${depictionList.size()+status.count}
