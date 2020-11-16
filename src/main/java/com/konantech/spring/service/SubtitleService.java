@@ -29,6 +29,7 @@ public class SubtitleService {
     }
 
     public int putSubtitleList(HttpServletRequest request, Principal principal) throws Exception {
+
         String videoid = RequestUtils.getParameter(request, "idx");
         String[] subtitleid = RequestUtils.getParameterValues(request, "subtitleid");
         String[] starttimecode = RequestUtils.getParameterValues(request, "starttimecode");
@@ -37,6 +38,7 @@ public class SubtitleService {
         String[] subtitle = RequestUtils.getParameterValues(request, "subtitle");
         String[] delflag = RequestUtils.getParameterValues(request, "delflag");
         int result = 0;
+
         for (int i = 0; i < subtitleid.length; i++) {
             HashMap<String, String> param = new HashMap<>();
             param.put("subtitleid", subtitleid[i]);
