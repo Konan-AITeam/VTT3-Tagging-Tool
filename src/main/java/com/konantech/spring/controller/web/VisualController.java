@@ -61,6 +61,7 @@ public class VisualController {
 
     @RequestMapping(value = "/visual/main", method = RequestMethod.GET)
     public String main(ModelMap modelMap, HttpServletRequest request) throws Exception {
+
         Map<String, Object> queryMap = RequestUtils.getParameterMap(request);
         modelMap.addAttribute("queryMap", queryMap);
 
