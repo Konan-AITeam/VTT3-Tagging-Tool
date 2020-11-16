@@ -30,6 +30,7 @@ public class SectionService {
     private ContentMapper contentMapper;
 
     public List<Map> getSectionList(HttpServletRequest request, Principal principal) {
+
         String idx = RequestUtils.getParameter(request, "idx");
         HashMap<String, String> param = new HashMap<>();
         param.put("userid", principal.getName());
@@ -79,6 +80,7 @@ public class SectionService {
     }
 
     public List<Map> getDepictionList(HttpServletRequest request, Principal principal) {
+
         String sectionid = RequestUtils.getParameter(request, "sectionid");
         HashMap<String, String> param = new HashMap<>();
         param.put("userid", principal.getName());
