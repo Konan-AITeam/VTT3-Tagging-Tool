@@ -1,0 +1,586 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.konantech.spring.mapper.StatsMapper">
+    <select id="getCountStatsViewInfoListPlace" parameterType="map" resultType="int">
+        SELECT coalesce(SUM(cnt),0) as cnt
+          FROM (
+                SELECT vtt_meta_json #>>'{place}' as statsitem
+                      , count(*) as cnt
+                  FROM vttm_meta_info_tb
+                <where>
+                    idx = #{idx}
+                    <if test="workerid != null and workerid != ''">
+                        and userid = #{workerid}
+                    </if>
+                    and vtt_meta_json #>>'{place}' != ''
+                </where>
+                group by vtt_meta_json #>> '{place}'
+              ) t
+    </select>
+
+    <select id="getStatsViewInfoListPlace" parameterType="map" resultType="java.util.Map">
+        SELECT vtt_meta_json #>>'{place}' as statsitem
+              , count(*) as cnt
+          FROM vttm_meta_info_tb
+        <where>
+            idx = #{idx}
+            <if test="workerid != null and workerid != ''">
+                and userid = #{workerid}
+            </if>
+            and vtt_meta_json #>>'{place}' != ''
+        </where>
+        group by vtt_meta_json #>> '{place}'
+        order by cnt desc
+    </select>
+
+    <select id="getCountStatsViewInfoListBehavior" parameterType="map" resultType="int">
+        SELECT coalesce(SUM(cnt),0) as cnt
+          FROM (
+            SELECT vttdata -> 'person_info' #>> '{behavior}' as statsitem
+                  , count(*) as cnt
+              FROM (
+                    SELECT vtt_meta_idx
+                          , json_array_elements(vtt_meta_json->'persons') as vttdata
+                    FROM vttm_meta_info_tb
+                    <where>
+                        idx = #{idx}
+                        <if test="workerid != null and workerid != ''">
+                            and userid = #{workerid}
+                        </if>
+                    </where>
+                  ) A
+              where vttdata -> 'person_info' #>> '{behavior}' != ''
+              group by vttdata -> 'person_info' #>> '{behavior}'
+              ) T
+    </select>
+
+    <select id="getStatsViewInfoListBehavior" parameterType="map" resultType="java.util.Map">
+        SELECT vttdata -> 'person_info' #>> '{behavior}' as statsitem
+              , count(*) as cnt
+          FROM (
+                SELECT vtt_meta_idx
+                      , json_array_elements(vtt_meta_json->'persons') as vttdata
+                  FROM vttm_meta_info_tb
+                <where>
+                    idx = #{idx}
+                    <if test="workerid != null and workerid != ''">
+                        and userid = #{workerid}
+                    </if>
+                </where>
+            ) A
+        where vttdata -> 'person_info' #>> '{behavior}' != ''
+        group by vttdata -> 'person_info' #>> '{behavior}'
+        order by cnt desc
+    </select>
+
+
+    <select id="getCountStatsViewInfoListPredicate" parameterType="map" resultType="int">
+        SELECT coalesce(SUM(cnt),0) as cnt
+        FROM (
+            SELECT vttdata -> 'person_info' #>> '{predicate}' as statsitem
+            , count(*) as cnt
+            FROM (
+            SELECT vtt_meta_idx
+            , json_array_elements(vtt_meta_json->'persons') as vttdata
+            FROM vttm_meta_info_tb
+            <where>
+                idx = #{idx}
+                <if test="workerid != null and workerid != ''">
+                    and userid = #{workerid}
+                </if>
+            </where>
+            ) A
+            WHERE vttdata -> 'person_info' #>> '{predicate}' != ''
+            GROUP BY vttdata -> 'person_info' #>> '{predicate}'
+        ) T
+    </select>
+
+    <select id="getStatsViewInfoListPredicate" parameterType="map" resultType="java.util.Map">
+        SELECT vttdata -> 'person_info' #>> '{predicate}' as statsitem
+              , count(*) as cnt
+        FROM (
+        SELECT vtt_meta_idx
+        , json_array_elements(vtt_meta_json->'persons') as vttdata
+        FROM vttm_meta_info_tb
+        <where>
+            idx = #{idx}
+            <if test="workerid != null and workerid != ''">
+                and userid = #{workerid}
+            </if>
+        </where>
+        ) A
+        WHERE vttdata -> 'person_info' #>> '{predicate}' != ''
+        GROUP BY vttdata -> 'person_info' #>> '{predicate}'
+        order by cnt desc
+    </select>
+
+    <select id="getCountStatsViewInfoListEmotion" parameterType="map" resultType="int">
+
+              SELECT (coalesce(SUM(cast(vttdata -> 'person_info' -> 'emotion' ->> 'Anger' as integer)),0) / 10)
+                    + (coalesce(SUM(cast(vttdata -> 'person_info' -> 'emotion' ->> 'Disgust' as integer)),0) / 10)
+                    + (coalesce(SUM(cast(vttdata -> 'person_info' -> 'emotion' ->> 'Fear' as integer)),0) / 10)
+                    + (coalesce(SUM(cast(vttdata -> 'person_info' -> 'emotion' ->> 'Happiness' as integer)),0) / 10)
+                    + (coalesce(SUM(cast(vttdata -> 'person_info' -> 'emotion' ->> 'Neutral' as integer)),0) / 10)
+                    + (coalesce(SUM(cast(vttdata -> 'person_info' -> 'emotion' ->> 'Sadness' as integer)),0) / 10)
+                    + (coalesce(SUM(cast(vttdata -> 'person_info' -> 'emotion' ->> 'Surprise' as integer)),0) / 10) as totalcnt
+                FROM (
+                        SELECT vtt_meta_idx, json_array_elements(vtt_meta_json->'persons') as vttdata
+                        FROM vttm_meta_info_tb
+                        <where>
+                            idx = #{idx}
+                            <if test="workerid != null and workerid != ''">
+                                and userid = #{workerid}
+                            </if>
+                        </where>
+                    ) a
+    </select>
+
+    <select id="getStatsViewInfoListEmotion" parameterType="map" resultType="java.util.Map">
+        SELECT statsitem
+        , cnt
+        FROM (
+        SELECT statsitem
+        , cnt
+        FROM (
+        SELECT coalesce(SUM(cast(vttdata -> 'person_info' -> 'emotion' ->> 'Anger' as integer)),0) / 10 as  Anger
+        , coalesce(SUM(cast(vttdata -> 'person_info' -> 'emotion' ->> 'Disgust' as integer)),0) / 10  as Disgust
+        , coalesce(SUM(cast(vttdata -> 'person_info' -> 'emotion' ->> 'Fear' as integer)),0) / 10  as Fear
+        , coalesce(SUM(cast(vttdata -> 'person_info' -> 'emotion' ->> 'Happiness' as integer)),0) / 10  as Happiness
+        , coalesce(SUM(cast(vttdata -> 'person_info' -> 'emotion' ->> 'Neutral' as integer)),0) / 10  as Neutral
+        , coalesce(SUM(cast(vttdata -> 'person_info' -> 'emotion' ->> 'Sadness' as integer)),0) / 10  as Sadness
+        , coalesce(SUM(cast(vttdata -> 'person_info' -> 'emotion' ->> 'Surprise' as integer)),0) / 10  as Surprise
+        FROM (
+        SELECT vtt_meta_idx, json_array_elements(vtt_meta_json->'persons') as vttdata
+        FROM vttm_meta_info_tb
+        <where>
+            idx = #{idx}
+            <if test="workerid != null and workerid != ''">
+                and userid = #{workerid}
+            </if>
+        </where>
+        ) a
+        ) b,
+        LATERAL (VALUES('Anger', Anger),('Disgust', Disgust),('Fear', Fear),('Happiness', Happiness),('Neutral', Neutral),('Sadness', Sadness),('Surprise', Surprise)) AS unpivot(statsitem, cnt)
+        ) T
+        order by cnt desc
+    </select>
+
+    <select id="getCountStatsViewInfoListPerson" parameterType="map" resultType="int">
+        SELECT coalesce(SUM(cnt),0) as cnt
+        FROM (
+                SELECT vttdata #>> '{person_id }' as statsitem
+                      , count(*) as cnt
+                  FROM (
+                        SELECT vtt_meta_idx
+                        , json_array_elements(vtt_meta_json->'persons') as vttdata
+                        FROM vttm_meta_info_tb
+                        <where>
+                            idx = #{idx}
+                            <if test="workerid != null and workerid != ''">
+                                and userid = #{workerid}
+                            </if>
+                        </where>
+                      ) A
+                   WHERE vttdata #>> '{person_id }' != ''
+                  GROUP by vttdata #>> '{person_id }'
+        ) T
+    </select>
+
+    <select id="getStatsViewInfoListPerson" parameterType="map" resultType="java.util.Map">
+        SELECT vttdata #>> '{person_id }' as statsitem
+        , count(*) as cnt
+        FROM (
+        SELECT vtt_meta_idx
+        , json_array_elements(vtt_meta_json->'persons') as vttdata
+        FROM vttm_meta_info_tb
+        <where>
+            idx = #{idx}
+            <if test="workerid != null and workerid != ''">
+                and userid = #{workerid}
+            </if>
+        </where>
+        ) A
+        WHERE vttdata #>> '{person_id }' != ''
+        group by vttdata #>> '{person_id }'
+        order by cnt desc
+    </select>
+
+    <select id="getCountStatsViewInfoListObject" parameterType="map" resultType="int">
+        SELECT coalesce(SUM(cnt),0) as cnt
+        FROM (
+                SELECT vttdata #>> '{object_id }' as statsitem
+                , count(*) as cnt
+                FROM (
+                SELECT vtt_meta_idx
+                , json_array_elements(vtt_meta_json->'objects') as vttdata
+                FROM vttm_meta_info_tb
+                <where>
+                    idx = #{idx}
+                    <if test="workerid != null and workerid != ''">
+                        and userid = #{workerid}
+                    </if>
+                </where>
+                ) A
+              WHERE vttdata #>> '{object_id }' != ''
+                GROUP BY vttdata #>> '{object_id }'
+        ) T
+    </select>
+
+    <select id="getStatsViewInfoListObject" parameterType="map" resultType="java.util.Map">
+        SELECT vttdata #>> '{object_id }' as statsitem
+        , count(*) as cnt
+        FROM (
+        SELECT vtt_meta_idx
+        , json_array_elements(vtt_meta_json->'objects') as vttdata
+        FROM vttm_meta_info_tb
+        <where>
+            idx = #{idx}
+            <if test="workerid != null and workerid != ''">
+                and userid = #{workerid}
+            </if>
+        </where>
+        ) A
+        WHERE vttdata #>> '{object_id }' != ''
+        GROUP BY vttdata #>> '{object_id }'
+        order by cnt desc
+    </select>
+
+    <select id="getCountStatsViewInfoListRelatedObject" parameterType="map" resultType="int">
+        SELECT coalesce(SUM(cnt),0) as cnt
+        FROM (
+            select vttdata #>> '{related_object_id}' as statsitem
+            , count(*) as cnt
+            from (
+                select json_array_elements(vttdata->'related_objects') as vttdata
+                from (
+                SELECT vtt_meta_idx
+                , json_array_elements(vtt_meta_json->'persons') as vttdata
+                FROM vttm_meta_info_tb
+                <where>
+                    idx = #{idx}
+                    <if test="workerid != null and workerid != ''">
+                        and userid = #{workerid}
+                    </if>
+                </where>
+                ) A
+            ) B
+            group by vttdata #>> '{related_object_id}'
+        ) T
+    </select>
+
+    <select id="getStatsViewInfoListRelatedObject" parameterType="map" resultType="java.util.Map">
+        select vttdata #>> '{related_object_id}' as statsitem
+             , count(*) as cnt
+         from (
+                select json_array_elements(vttdata->'related_objects') as vttdata
+                  from (
+                        SELECT vtt_meta_idx
+                        , json_array_elements(vtt_meta_json->'persons') as vttdata
+                        FROM vttm_meta_info_tb
+                    <where>
+                        idx = #{idx}
+                        <if test="workerid != null and workerid != ''">
+                          and userid = #{workerid}
+                        </if>
+                    </where>
+                     ) A
+             ) B
+        group by vttdata #>> '{related_object_id}'
+        order by cnt desc
+    </select>
+
+    <select id="getWorkerListPlace" parameterType="map" resultType="java.util.Map">
+        SELECT distinct userid as userid
+        FROM vttm_meta_info_tb
+        <where>
+            idx = #{idx}
+            and vtt_meta_json #>>'{place}' != ''
+        </where>
+    </select>
+
+    <select id="getWorkerListBehavior" parameterType="map" resultType="java.util.Map">
+        select distinct userid as userid
+        from (
+        SELECT userid
+        , json_array_elements(vtt_meta_json->'persons') as vttdata
+        FROM vttm_meta_info_tb
+        <where>
+            idx = #{idx}
+        </where>
+        ) A
+        WHERE vttdata -> 'person_info' #>> '{behavior}' != ''
+    </select>
+
+    <select id="getWorkerListPredicate" parameterType="map" resultType="java.util.Map">
+        select distinct userid as userid
+            from (
+            SELECT userid
+            , json_array_elements(vtt_meta_json->'persons') as vttdata
+            FROM vttm_meta_info_tb
+            <where>
+            idx = #{idx}
+            </where>
+            ) A
+            where vttdata -> 'person_info' #>> '{predicate}' != ''
+    </select>
+    <select id="getWorkerListEmotion" parameterType="map" resultType="java.util.Map">
+        select distinct userid as userid
+            from (
+            SELECT userid
+            , json_array_elements(vtt_meta_json->'persons') as vttdata
+            FROM vttm_meta_info_tb
+        <where>
+            idx = #{idx}
+        </where>
+            ) a
+    </select>
+    <select id="getWorkerListPerson" parameterType="map" resultType="java.util.Map">
+        select distinct userid as userid
+            from (
+            SELECT userid
+            , json_array_elements(vtt_meta_json->'persons') as vttdata
+            FROM vttm_meta_info_tb
+        <where>
+            idx = #{idx}
+        </where>
+            ) A
+            where vttdata #>> '{person_id }' != ''
+    </select>
+
+    <select id="getWorkerListObject" parameterType="map" resultType="java.util.Map">
+        select distinct userid  as userid
+            from (
+            SELECT userid
+            , json_array_elements(vtt_meta_json->'objects') as vttdata
+            FROM vttm_meta_info_tb
+        <where>
+            idx = #{idx}
+        </where>
+            ) A
+          where vttdata #>> '{object_id }' != ''
+    </select>
+
+    <select id="getWorkerListRelatedObject" parameterType="map" resultType="java.util.Map">
+        select distinct userid as userid
+        from (
+        select userid
+              , json_array_elements(vttdata->'related_objects') as vttdata
+        from (
+            SELECT userid
+            , json_array_elements(vtt_meta_json->'persons') as vttdata
+            FROM vttm_meta_info_tb
+            <where>
+                idx = #{idx}
+            </where>
+            ) A
+        ) B
+        WHERE vttdata #>> '{related_object_id}' != ''
+    </select>
+
+    <select id="getWorkerListQaTotal" parameterType="map" resultType="java.util.Map">
+         select distinct userid as userid
+           from (
+              SELECT distinct c.userid as userid
+                FROM VTTM_SECTION_INFO_TB A
+               INNER JOIN VTTM_SHOT_TB B ON A.videoid = B.videoid AND B.shotid BETWEEN A.startshotid AND A.endshotid
+               INNER JOIN vttm_shot_qa_tb C ON C.shotid = B.shotid
+               WHERE A.videoid = #{idx}
+                 and questiontype != 'DESC'
+                 and C.question != ''
+              union ALL
+              SELECT distinct b.userid as userid
+                from VTTM_SECTION_INFO_TB	a
+                inner join
+                    vttm_section_qa_tb b on a.sectionid = b.sectionid
+                 WHERE videoid = #{idx}
+                 and b.questiontype != 'DESC'
+                 and b.question != ''
+             ) t
+             order by userid
+    </select>
+
+
+    <select id="getWorkerListQaInterrogative" parameterType="map" resultType="java.util.Map">
+       select distinct userid
+        from (
+            SELECT b.userid
+            , split_part(b.question,' ',1) as question
+            from VTTM_SECTION_INFO_TB	a
+            inner join vttm_section_qa_tb b on a.sectionid = b.sectionid
+            WHERE videoid =  #{idx}
+            and b.questiontype != 'DESC'
+            and b.question != ''
+            union all
+             SELECT C.userid
+                , split_part(c.question,' ',1) as question
+                FROM VTTM_SECTION_INFO_TB A
+                INNER JOIN VTTM_SHOT_TB B ON A.videoid = B.videoid AND B.shotid BETWEEN A.startshotid AND A.endshotid
+                INNER JOIN vttm_shot_qa_tb C ON C.shotid = B.shotid
+                WHERE A.videoid =  #{idx}
+                and C.questiontype != 'DESC'
+                and C.question != ''
+        ) g
+        inner join vttm_code_tb cd on cd.group_code ='ST01' and g.question = cd.code_name
+
+    </select>
+
+    <select id="getStatsQaInfoListQaTotalShot" parameterType="map" resultType="java.util.Map">
+        SELECT case replace(C.questiontype,'QNALV','') when '5' then 'kb' else replace(C.questiontype,'QNALV','')  end as questiontype
+          , COUNT(C.questionid) as cnt
+        FROM VTTM_SECTION_INFO_TB A
+        INNER JOIN VTTM_SHOT_TB B ON A.videoid = B.videoid AND B.shotid BETWEEN A.startshotid AND A.endshotid
+        INNER JOIN vttm_shot_qa_tb C ON C.shotid = B.shotid
+        WHERE A.videoid = #{idx}
+            and questiontype != 'DESC'
+            and C.question != ''
+        <if test="workerid != null and workerid != ''">
+            and c.userid = #{workerid}
+        </if>
+        group by C.questiontype
+        order by C.questiontype
+    </select>
+
+    <select id="getStatsQaInfoListQaTotalScene" parameterType="map" resultType="java.util.Map">
+      SELECT case replace(b.questiontype,'QNALV','') when '5' then 'kb' else replace(b.questiontype,'QNALV','')  end as questiontype
+           , COUNT(b.questionid) as cnt
+        from
+            VTTM_SECTION_INFO_TB	a
+        inner join
+            vttm_section_qa_tb b on a.sectionid = b.sectionid
+         WHERE a.videoid = #{idx}
+        <if test="workerid != null and workerid != ''">
+            and b.userid = #{workerid}
+        </if>
+         and b.questiontype != 'DESC'
+         and b.question != ''
+       group by b.questiontype
+       order by b.questiontype
+    </select>
+
+    <select id="getStatsQaInfoListQaInterrogativeShot" parameterType="map" resultType="java.util.Map">
+        with codetable as (
+        select c2.code_name as questiontype
+        , c1.code_name as question
+        , row_number() over(order by c2.code, c1.code ) as num
+        from vttm_code_tb c1
+        inner join vttm_code_tb c2 on c2.group_code ='ST03'
+        where c1.group_code ='ST01'
+        order by c2.code, c1.code
+        )
+        select case t1.questiontype when '5' then 'kb' else t1.questiontype end as questiontype
+            , t1.question
+            , coalesce(t2.cnt,0) as cnt
+         from codetable t1
+         left outer join(
+                 select questiontype
+                       , question
+                       , COUNT(question) as cnt
+                   from (
+                        SELECT replace(C.questiontype,'QNALV','') as questiontype
+                           , split_part(c.question,' ',1) as question
+                        FROM VTTM_SECTION_INFO_TB A
+                        INNER JOIN VTTM_SHOT_TB B ON A.videoid = B.videoid AND B.shotid BETWEEN A.startshotid AND A.endshotid
+                        INNER JOIN vttm_shot_qa_tb C ON C.shotid = B.shotid
+                        WHERE A.videoid = #{idx}
+                        <if test="workerid != null and workerid != ''">
+                            and c.userid = #{workerid}
+                        </if>
+                        and C.questiontype != 'DESC'
+                        and C.question != ''
+                      ) g
+                 group by questiontype, question
+           ) t2 on t1.questiontype = t2.questiontype and t1.question = t2.question
+        order by t1.num
+    </select>
+
+    <select id="getStatsQaInfoListQaInterrogativeScene" parameterType="map" resultType="java.util.Map">
+            with codetable as (
+            select c2.code_name as questiontype
+            , c1.code_name as question
+            , row_number() over(order by c2.code, c1.code ) as num
+            from vttm_code_tb c1
+            inner join vttm_code_tb c2 on c2.group_code ='ST02'
+            where c1.group_code ='ST01'
+            order by c2.code, c1.code
+            )
+            select case t1.questiontype when '5' then 'kb' else t1.questiontype end as questiontype
+            , t1.question
+            , coalesce(t2.cnt,0) as cnt
+            from codetable t1
+            left outer join (
+            select questiontype, question, COUNT(question) as cnt
+            from (
+            SELECT replace(b.questiontype,'QNALV','') as questiontype
+            , split_part(b.question,' ',1) as question
+            from VTTM_SECTION_INFO_TB	a
+            inner join vttm_section_qa_tb b on a.sectionid = b.sectionid
+            WHERE videoid = #{idx}
+            <if test="workerid != null and workerid != ''">
+                and b.userid = #{workerid}
+            </if>
+            and b.questiontype != 'DESC'
+            and b.question != ''
+            ) g
+            group by questiontype, question
+            ) t2 on t1.questiontype = t2.questiontype and t1.question = t2.question
+            order by t1.num
+    </select>
+
+    <select id="getStatsQaInfoListQaInterrogativeChart" parameterType="map" resultType="java.util.Map">
+        select t.questiontype
+              , COALESCE( SUM(CASE WHEN question='Who' THEN t.cnt END), 0) as qwho
+              , COALESCE( SUM(CASE WHEN question='When' THEN t.cnt END), 0) as qwhen
+              , COALESCE( SUM(CASE WHEN question='Where' THEN t.cnt END), 0) as qwhere
+              , COALESCE( SUM(CASE WHEN question='What' THEN t.cnt END), 0) as qwhat
+              , COALESCE( SUM(CASE WHEN question='How' THEN t.cnt END), 0) as qhow
+              , COALESCE( SUM(CASE WHEN question='Why' THEN t.cnt END), 0) as qwhy
+          from (
+                with codetable as (
+                    select c2.code_name as questiontype
+                          , c1.code_name as question
+                          , row_number() over(order by c2.code, c1.code ) as num
+                      from vttm_code_tb c1
+                     inner join vttm_code_tb c2 on c2.group_code ='ST04'
+                     where c1.group_code ='ST01'
+                     order by c2.code, c1.code
+                )
+                select case t1.questiontype when '5' then 'kb' else t1.questiontype end as questiontype
+                      , t1.question
+                      , coalesce(t2.cnt,0) as cnt
+                  from codetable t1
+                  left outer join (
+                        select questiontype
+                              , question
+                              , COUNT(question) as cnt
+                          from (
+                           SELECT replace(C.questiontype,'QNALV','') as questiontype
+                                 , split_part(c.question,' ',1) as question
+                             FROM VTTM_SECTION_INFO_TB A
+                            INNER JOIN VTTM_SHOT_TB B ON A.videoid = B.videoid AND B.shotid BETWEEN A.startshotid AND A.endshotid
+                            INNER JOIN vttm_shot_qa_tb C ON C.shotid = B.shotid
+                            WHERE A.videoid = #{idx}
+                            <if test="workerid != null and workerid != ''">
+                                and c.userid = #{workerid}
+                            </if>
+                             and C.questiontype != 'DESC'
+                             and C.question != ''
+                           UNION ALL
+                          SELECT replace(b.questiontype,'QNALV','') as questiontype
+                                , split_part(b.question,' ',1) as question
+                            from VTTM_SECTION_INFO_TB	a
+                           inner join vttm_section_qa_tb b on a.sectionid = b.sectionid
+                           WHERE videoid = #{idx}
+                            <if test="workerid != null and workerid != ''">
+                                and b.userid = #{workerid}
+                            </if>
+                             and b.questiontype != 'DESC'
+                             and b.question != ''
+                             ) g
+                        group by questiontype, question
+                    ) t2 on t1.questiontype = t2.questiontype and t1.question = t2.question
+              ) t
+         group by questiontype
+         order by questiontype desc
+    </select>
+
+</mapper>
