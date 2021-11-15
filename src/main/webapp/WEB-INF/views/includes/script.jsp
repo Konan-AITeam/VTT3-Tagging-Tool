@@ -15,6 +15,7 @@
 <script src="<c:url value="/webjars/nprogress/0.2.0/nprogress.js"/>"></script>
 <!-- Chart.js -->
 <script src="<c:url value="/webjars/chartjs/2.1.3/Chart.min.js"/>"></script>
+<script src="<c:url value="/resources/js/loader.js"/>"></script>
 <!-- gauge.js -->
 <script src="<c:url value="/webjars/gauge.js/1.2.1/dist/gauge.min.js"/>"></script>
 <!-- bootstrap-progressbar -->

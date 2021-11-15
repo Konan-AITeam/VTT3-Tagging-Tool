@@ -165,7 +165,6 @@
             <div class="x_content" id="sectionList"></div>
         </div>
     </div>
-
     <div class="selction-list-Image" >
         <div class="row fix" style="height:100%;">
             <div class="x_panel">

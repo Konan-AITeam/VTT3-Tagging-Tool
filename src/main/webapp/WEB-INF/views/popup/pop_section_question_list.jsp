@@ -95,7 +95,7 @@
             <a href="#qnaSceneTap5Div" role="tab" id="qnaSceneTap5" data-toggle="tab" aria-expanded="false"> Q&A - Level4 </a>
         </li>
         <li role="presentation" class="">
-            <a href="#qnaSceneTap6Div" role="tab" id="qnaSceneTap6" data-toggle="tab" aria-expanded="false"> Q&A - Level5 </a>
+            <a href="#qnaSceneTap6Div" role="tab" id="qnaSceneTap6" data-toggle="tab" aria-expanded="false"> Q&A - KB </a>
         </li>
     </ul>
     <div id="nav-objTabContent" class="layer-edit-wrap tab-content">

@@ -187,14 +187,21 @@
             </div>
         </div>
     </div>'/>
+
             <c:choose>
             <c:when test="${result.questiontype eq 'QNALV3'}">
                 <c:set var="qnaLv3Cnt" value="${qnaLv3Cnt+1}"/>
                 <c:choose>
                     <c:when test="${qnaLv3Cnt == 1}">
+                        <c:if test="${result.questionid eq questionid }">
+                            <c:set var="chkLevelId" value='qnaSceneTap2'/>
+                        </c:if>
                         <c:set var="qnaLv31" value="${qaHtml}"/>
                     </c:when>
                     <c:when test="${qnaLv3Cnt == 2}">
+                        <c:if test="${result.questionid eq questionid }">
+                            <c:set var="chkLevelId" value='qnaSceneTap3'/>
+                        </c:if>
                         <c:set var="qnaLv32" value="${qaHtml}"/>
                     </c:when>
                 </c:choose>
@@ -203,9 +210,15 @@
                 <c:set var="qnaLv4Cnt" value="${qnaLv4Cnt+1}"/>
                 <c:choose>
                     <c:when test="${qnaLv4Cnt == 1}">
+                        <c:if test="${result.questionid eq questionid }">
+                            <c:set var="chkLevelId" value='qnaSceneTap4'/>
+                        </c:if>
                         <c:set var="qnaLv41" value="${qaHtml}"/>
                     </c:when>
                     <c:when test="${qnaLv4Cnt == 2}">
+                        <c:if test="${result.questionid eq questionid }">
+                            <c:set var="chkLevelId" value='qnaSceneTap5'/>
+                        </c:if>
                         <c:set var="qnaLv42" value="${qaHtml}"/>
                     </c:when>
                 </c:choose>
@@ -214,6 +227,9 @@
                 <c:set var="qnaLv5Cnt" value="${qnaLv5Cnt+1}"/>
                 <c:choose>
                     <c:when test="${qnaLv5Cnt == 1}">
+                        <c:if test="${result.questionid eq questionid }">
+                            <c:set var="chkLevelId" value='qnaSceneTap6'/>
+                        </c:if>
                         <c:set var="qnaLv51" value="${qaHtml}"/>
                     </c:when>
                 </c:choose>
@@ -252,3 +268,6 @@
     <input type="hidden" name="questiontype" value="QNALV5"/>
     ${qnaLv51}
 </div>
+<script>
+    $("#<c:out value="${chkLevelId}"/>").click();
+</script>

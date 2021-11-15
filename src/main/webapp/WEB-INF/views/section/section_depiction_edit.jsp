@@ -137,7 +137,7 @@
     /*묘사조회*/
     function getDepictionList(sectionid){
         if(sectionid==null||sectionid==''){
-            MSG.alert("getDepictionList </br> 생성된 QA구간이 없습니다.");
+            MSG.alert("생성된 QA구간이 없습니다.");
             return;
         }
         $.ajax({

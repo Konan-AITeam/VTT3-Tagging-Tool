@@ -45,7 +45,6 @@
                         </section>
                     </form>
                     </span>
-
                     <div class="btn-group btn_menu" id="btn_detect" style="padding-left:15px;font-size:12px;">
                         <input type="radio" name="btn_show_target" value="object"/> 사물
                         <input type="radio" name="btn_show_target" value="place"/> 장소

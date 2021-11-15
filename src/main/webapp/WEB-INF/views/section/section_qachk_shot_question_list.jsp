@@ -43,7 +43,6 @@
     <div id="nav-objTabContent" class="layer-edit-wrap tab-content">
     </div>
 </div>
-
 <c:set var="descHtml" value=""/>
 <c:set var="qaLv1Html" value=""/>
 <c:set var="qaLv2Html" value=""/>
@@ -119,12 +118,21 @@
         </div>'/>
                 <c:choose>
                 <c:when test="${result.questiontype eq 'QNALV1'}">
+                    <c:if test="${result.questionid eq questionid }">
+                        <c:set var="chkLevelId" value='qnaSceneTapLv1'/>
+                    </c:if>
                     <c:set var="qaLv1Html" value="${qaHtml}"/>
                 </c:when>
                 <c:when test="${result.questiontype eq 'QNALV2'}">
+                    <c:if test="${result.questionid eq questionid }">
+                        <c:set var="chkLevelId" value='qnaSceneTapLv2'/>
+                    </c:if>
                     <c:set var="qaLv2Html" value="${qaHtml}"/>
                 </c:when>
                 <c:when test="${result.questiontype eq 'QNALV5'}">
+                    <c:if test="${result.questionid eq questionid }">
+                        <c:set var="chkLevelId" value='qnaSceneTapLv5'/>
+                    </c:if>
                     <c:set var="qaLv5Html" value="${qaHtml}"/>
                 </c:when>
                 </c:choose>
@@ -133,7 +141,6 @@
     </c:forEach>
     </c:when>
 </c:choose>
-
         <c:set var="qaBlankHtml" value='
 <div class="form-group edit-form">
     <label class="control-label col-md-1 col-sm-1 col-xs-12"> 질문</label>
@@ -198,7 +205,6 @@
             </div>
         </div>'/>
 </c:if>
-
 <c:if test="${qaLv1Html == null || qaLv1Html.equals('')}">
     <c:set var="qaLv1Html" value="${qaBlankHtml.replace('tmpquestiontype','QNALV1')}"/>
 </c:if>
@@ -208,7 +214,6 @@
 <c:if test="${qaLv5Html == null || qaLv5Html.equals('')}">
     <c:set var="qaLv5Html" value="${qaBlankHtml.replace('tmpquestiontype','QNALV5')}"/>
 </c:if>
-
 <div role="tabpanel" class="tab-pane fade active in" id="qnaSceneTap1Div" aria-labelledby="qnaSceneTap1">
     <input type="hidden" name="questiontype" value="DESC"/>
     <input type="hidden" name="answer" value="">
@@ -231,4 +236,5 @@
     function onCheckQuestType(obj){
         $(obj).parent("div").find("input[name=questiontype]").val($(obj).val());
     }
+    $("#<c:out value="${chkLevelId}"/>").click();
 </script>

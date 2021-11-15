@@ -28,7 +28,6 @@
     </td>
 </tr>
 </c:forEach>
-
 <tr name ="secTr" id="subtitleTr_new" onclick="getSubtitleInfo(this)"  style="display:none;">>
     <input type="hidden" name="subtitleid" value=""/>
     <input type="hidden" name="starttimecode" value="0:00:00"/>

@@ -33,6 +33,12 @@
                         <div class="x_title">
                             <h2> 콘텐츠 리스트 <small>Content list</small></h2>
                             <ul class="nav navbar-right panel_toolbox">
+                                <li>
+                                    <a class="table-btn" id="btn_stats">
+                                        <i class="fa fa-file-code-o " ></i>
+                                        통계
+                                    </a>
+                                </li>
 <sec:authorize access="hasAnyRole('ROLE_ADMIN')" var="u">
                                 <li>
                                     <a class="table-btn" id="btn_active_learn">
@@ -63,6 +69,12 @@
                                     <a class="table-btn" id="btn_vtt_qna_edit">
                                         <i class="fa fa-file-code-o " ></i>
                                         VTT 묘사 & Q&A 편집
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="table-btn" id="btn_vtt_qna_chk">
+                                        <i class="fa fa-file-code-o " ></i>
+                                        VTT 묘사 & Q&A 검증
                                     </a>
                                 </li>
                                 <li>
@@ -134,6 +146,7 @@
 
                             <div class="clearfix"></div>
                         </div>
+
                         <div class="x_content">
                             <div class="table-responsive">
                                 <table class="table table-striped jambo_table bulk_action">
@@ -255,9 +268,24 @@
             var param = {};
             param.idx = $T.find("input[name=idx]").val();
             param.viewChk = 'qna';
+            param.qachk = false;
             location.href = "<c:url value='/section/qa' />?" + $.param(param);
 
         });
+
+        $("#btn_vtt_qna_chk").on("click", function() {
+            var $T = $("#content_assets .ui-selectee.ui-selected");
+            if($T.length == 0) {
+                toast("Content", "콘텐츠를 선택하세요.!", "info", 5000);
+                return false;
+            }
+            var param = {};
+            param.idx = $T.find("input[name=idx]").val();
+            param.viewChk = 'qna';
+            param.qachk = true;
+            location.href = "<c:url value='/section/qachk' />?" + $.param(param);
+        });
+
 
         $("#btn_vtt_sound_edit").on("click", function() {
             var $T = $("#content_assets .ui-selectee.ui-selected");
@@ -418,6 +446,18 @@
         });
 
         // btn
+
+        $("#btn_stats").on("click", function() {
+            var $T = $("#content_assets .ui-selectee.ui-selected");
+            if($T.length == 0) {
+                toast("Content", "콘텐츠를 선택하세요.!", "info", 5000);
+                return false;
+            }
+            var param = {};
+            param.idx = $T.find("input[name=idx]").val();
+            location.href = "<c:url value='/stats' />?" + $.param(param);
+
+        });
         $("#btn_active_learn").on("click", function() {
 
             var $T = $("#content_assets .ui-selectee.ui-selected");

@@ -57,7 +57,6 @@
     }
     /*구간 선택*/
     function getSectionShotList(videoid,shotid,delflag,filepath,filename){
-        console.log("getSectionShotList");
         if(myPlayer1!=null) {
             myPlayer1.pause();
         }
@@ -71,6 +70,23 @@
         myPlayer1.currentTime(startsec);
         getShotQuestionList(shotid);
     }
+
+    /*구간 선택*/
+    function getQaChkSectionShotList(videoid,shotid,delflag,filepath,filename, qachkworkerid, questionid){
+        if(myPlayer1!=null) {
+            myPlayer1.pause();
+        }
+        $('.table tbody tr[name="secTr"]').removeClass('ui-selected');
+        var $tr = $('#secTr_'+shotid);
+        $tr.addClass('ui-selected');
+        var startsec=$tr.find("input[name=startsec]").val();
+        var endsec=$tr.find("input[name=endsec]").val();
+        _startsec = startsec;
+        _endsec = endsec;
+        myPlayer1.currentTime(startsec);
+        getQaChkShotQuestionList(shotid,qachkworkerid,questionid);
+    }
+
 
     /*구간 조회*/
     function getSectionList(idx) {
@@ -139,7 +155,53 @@
         });
     }
 
+    /*QA 검증 버튼 검색어 조회 - Scene*/
+    function getQaChkSectionList(idx,qaSearchWord) {
+        var $div='';
+        $.ajax({
+            url: '<c:url value="/section/getQaChkSectionList"/>',
+            type: 'POST',
+            data: {'idx': idx, 'rate':_rate, 'qaSearchWord':qaSearchWord},
+            dataType: 'html',
+            // contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            success: function (html) {
+                $div = html;
+                $("#qaChkSectionList").html($div);
+                $("#qaChkSectionList tr:first").click();
+                bindCheckErrorTyping();
+                onlyEngNum();
+                firstLetterUpperCase();
+                tabChange();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                MSG.alert("getQaSectionList </br> status:"+xhr.status+"</br> message:"+xhr.responseText);
+            }
+        });
+    }
 
+    /*QA 검증 버튼 검색어 조회 - Shot*/
+    function getQaChkSectionOfSceneList(videoid,qaSearchWord) {
+        var $div='';
+        $.ajax({
+            url: '<c:url value="/section/getQaChkSectionOfSceneList"/>',
+            type: 'POST',
+            data: {'videoid': videoid, 'qaSearchWord': qaSearchWord, 'rate':_rate},
+            async: false,
+            dataType: 'html',
+            // contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            success: function (html) {
+                $div = html;
+                $("#qaChkShotList").html($div);
+                bindCheckErrorTyping();
+                onlyEngNum();
+                firstLetterUpperCase();
+                tabChange();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                MSG.alert("getQaChkSectionOfSceneList </br> status:"+xhr.status+"</br> message:"+xhr.responseText);
+            }
+        });
+    }
 
     function resizeVideo() {
         var w = $("#scrollImgDiv").width() - 30;
