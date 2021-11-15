@@ -250,7 +250,6 @@ public class VisualServiceImpl implements VisualService {
 
     @Override
     public int getPutMetaInfo(Map paramMap, List list) throws Exception {
-
         ObjectMapper mapper = new ObjectMapper();
         String repImgSeq = (String) paramMap.get("repImgSeq");
         String jsonInString = "";

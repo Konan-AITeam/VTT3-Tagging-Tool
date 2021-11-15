@@ -60,7 +60,6 @@ public class StoryboardService {
     }
 
     public Map<String, Object> getShotSize(ShotTB asset) throws Exception {
-
         String assetfilepath = asset.getAssetfilepath();
         String assetfilename = asset.getAssetfilename();
         String sourceFile = FilenameUtils.normalize(proxyShotFolder + "/" + assetfilepath + "/" + assetfilename);

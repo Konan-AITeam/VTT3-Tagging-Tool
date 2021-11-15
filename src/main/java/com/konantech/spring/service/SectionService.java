@@ -1,7 +1,9 @@
 package com.konantech.spring.service;
 
+import com.konantech.spring.domain.content.ContentQuery;
 import com.konantech.spring.domain.section.Qa;
 import com.konantech.spring.domain.section.Section;
+import com.konantech.spring.domain.storyboard.ShotTB;
 import com.konantech.spring.mapper.ContentMapper;
 import com.konantech.spring.mapper.SectionMapper;
 import com.konantech.spring.util.JSONUtils;
@@ -30,13 +32,41 @@ public class SectionService {
     private ContentMapper contentMapper;
 
     public List<Map> getSectionList(HttpServletRequest request, Principal principal) {
-
         String idx = RequestUtils.getParameter(request, "idx");
+        String qaSearchWord = RequestUtils.getParameter(request, "qaSearchWord");
         HashMap<String, String> param = new HashMap<>();
         param.put("userid", principal.getName());
         param.put("idx", idx);
+        param.put("qaSearchWord", qaSearchWord);
+
 
         List<Map> list = sectionMapper.getSectionList(param);
+
+        list.forEach(m -> {
+            float rate = Float.parseFloat(RequestUtils.getParameter(request, "rate", "1 "));
+            float startframeindex = MapUtils.getFloatValue(m, "startframeindex");
+            float endframeindex = MapUtils.getFloatValue(m, "endframeindex");
+            m.put("startframeindex", startframeindex / rate);
+            m.put("endframeindex", endframeindex / rate);
+        });
+
+        return list;
+    }
+
+
+    public List<Map> getQaChkSectionList(HttpServletRequest request, Principal principal) {
+        String idx = RequestUtils.getParameter(request, "idx");
+        String qaSearchWord = RequestUtils.getParameter(request, "qaSearchWord");
+        HashMap<String, String> param = new HashMap<>();
+        param.put("userid", principal.getName());
+        param.put("idx", idx);
+        param.put("qaSearchWord", qaSearchWord);
+        if(request.isUserInRole("ROLE_ADMIN")){
+            param.put("roleadmin", "admin");
+        }else{
+            param.put("roleadmin", "user");
+        }
+        List<Map> list = sectionMapper.getQaChkSectionList(param);
 
         list.forEach(m -> {
             float rate = Float.parseFloat(RequestUtils.getParameter(request, "rate", "1 "));
@@ -80,7 +110,6 @@ public class SectionService {
     }
 
     public List<Map> getDepictionList(HttpServletRequest request, Principal principal) {
-
         String sectionid = RequestUtils.getParameter(request, "sectionid");
         HashMap<String, String> param = new HashMap<>();
         param.put("userid", principal.getName());
@@ -109,10 +138,29 @@ public class SectionService {
 
     public List<Map> getQuestionList(HttpServletRequest request, Principal principal) {
         String sectionid = RequestUtils.getParameter(request, "sectionid");
+        String workerId = RequestUtils.getParameter(request, "workerId");
         HashMap<String, String> param = new HashMap<>();
-        param.put("userid", principal.getName());
+        if(workerId == null || "".equals(workerId)){
+            param.put("userid", principal.getName());
+        }else{
+            param.put("userid", workerId);
+        }
         param.put("sectionid", sectionid);
         return sectionMapper.getQuestionList(param);
+    }
+    public List<Map> getQaChkQuestionList(HttpServletRequest request, Principal principal) {
+        String sectionid = RequestUtils.getParameter(request, "sectionid");
+        String workerId = RequestUtils.getParameter(request, "workerId");
+        String questionId = RequestUtils.getParameter(request, "questionId");
+        HashMap<String, String> param = new HashMap<>();
+        if(workerId == null || "".equals(workerId)){
+            param.put("userid", principal.getName());
+        }else{
+            param.put("userid", workerId);
+        }
+        param.put("sectionid", sectionid);
+        param.put("questionid", questionId);
+        return sectionMapper.getQaChkQuestionList(param);
     }
 
     public int putQuestionList(HttpServletRequest request, Principal principal) throws Exception {
@@ -138,22 +186,35 @@ public class SectionService {
             param.put("wrong_answer3", wrong_answer3[i]);
             param.put("wrong_answer4", wrong_answer4[i]);
             param.put("userid", principal.getName());
-            if (!question[i].equals("")) {
                 if (questionid[i].equals(""))
                     result += sectionMapper.putQuestionItem(param);
                 else
                     result += sectionMapper.setQuestionItem(param);
-            }
+
         }
         return result;
     }
 
     public List<Map> getShotQuestionList(HttpServletRequest request, Principal principal) {
         String shotid = RequestUtils.getParameter(request, "shotid");
+        String workerId = RequestUtils.getParameter(request, "workerId");
         HashMap<String, String> param = new HashMap<>();
-        param.put("userid", principal.getName());
+        if(workerId == null || "".equals(workerId)){
+            param.put("userid", principal.getName());
+        }else{
+            param.put("userid", workerId);
+        }
         param.put("shotid", shotid);
         return sectionMapper.getShotQuestionList(param);
+    }
+
+    public List<Map> getWorkerList(HttpServletRequest request) {
+        String shotid = RequestUtils.getParameter(request, "shotid");
+        String sectionid = RequestUtils.getParameter(request, "sectionid");
+        HashMap<String, String> param = new HashMap<>();
+        param.put("shotid", shotid);
+        param.put("sectionid", sectionid);
+        return sectionMapper.getWorkerList(param);
     }
 
     public int putShotQuestionList(HttpServletRequest request, Principal principal) throws Exception {
@@ -169,7 +230,6 @@ public class SectionService {
         int result = 0;
         for (int i = 0; i < questionid.length; i++) {
             HashMap<String, String> param = new HashMap<>();
-            if (!question[i].equals("")) {
                 param.put("questionid", questionid[i]);
                 param.put("questiontype", questiontype[i]);
                 param.put("shotid", shotid);
@@ -184,7 +244,7 @@ public class SectionService {
                     result += sectionMapper.putShotQuestionItem(param);
                 else
                     result += sectionMapper.setShotQuestionItem(param);
-            }
+
         }
         return result;
     }
@@ -288,22 +348,30 @@ public class SectionService {
             for (Qa.QaResult.QnaInfo qna : sectionInfoQa) {
 
                 Qa.QaResult.QnaResult qans = new Qa.QaResult.QnaResult();
-                if(qaInfo.getIdx() == 2){
-                    String qid = "99"+qna.getQid();
-                    qans.setQid(Integer.parseInt(qid));
-                }else{
-                    qans.setQid(qna.getQid());
-                }
-                qans.setQa_level(qna.getQa_level());
-                qans.setQ_level_mem(qna.getQ_level_mem());
-                qans.setQ_level_logic(qna.getQ_level_logic());
-                qans.setQue(qna.getQue());
-                qans.setTrue_ans(qna.getTrue_ans());
+               if(qna.getQue() != null && !qna.getQue().equals("")) {
+                    if (qaInfo.getIdx() == 2) {
+                        String qid = "99" + qna.getQid();
+                        qans.setQid(Integer.parseInt(qid));
+                    } else {
+                        qans.setQid(qna.getQid());
+                    }
+                    String qa_level = "";
+                    if(qna.getQa_level()==5){
+                        qa_level = "kb";
+                    }else{
+                        qa_level = String.valueOf(qna.getQa_level());
+                    }
+                    qans.setQa_level(qa_level);
+                    qans.setQ_level_mem(qna.getQ_level_mem());
+                    qans.setQ_level_logic(qna.getQ_level_logic());
+                    qans.setQue(qna.getQue());
+                    qans.setTrue_ans(qna.getTrue_ans());
 
-                String[] falseAns = {qna.getWrong_answer1(), qna.getWrong_answer2(), qna.getWrong_answer3(), qna.wrong_answer4};
-                qans.setFalse_ans(falseAns);
+                    String[] falseAns = {qna.getWrong_answer1(), qna.getWrong_answer2(), qna.getWrong_answer3(), qna.wrong_answer4};
+                    qans.setFalse_ans(falseAns);
 
-                sectionInfoQaResut.add(qans);
+                    sectionInfoQaResut.add(qans);
+               }
             }
             qr.setQa(sectionInfoQaResut);
 
@@ -317,4 +385,13 @@ public class SectionService {
         return resultJson;
     }
 
+    public List<ShotTB> getQaChkSectionOfSceneList(ContentQuery n) {
+        return sectionMapper.getQaChkSectionOfSceneList(n);
+    }
+    /*public List<Map> getWorkerList(HttpServletRequest request) throws Exception {
+        String sectionid = RequestUtils.getParameter(request, "sectionid");
+        HashMap<String, String> param = new HashMap<>();
+        param.put("sectionid", sectionid);
+        return sectionMapper.getWorkerList(param);
+    }*/
 }

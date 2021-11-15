@@ -106,11 +106,9 @@ public class ContentService {
         ContentField item = contentMapper.getContentItem(n);
         String mediainfo = item.getMediainfo();
         if (mediainfo != null) {
-
             ObjectMapper mapper = new ObjectMapper();
             HashMap<String, Object> map = mapper.readValue(mediainfo, new HashMap<String, Object>().getClass());
             JSONArray jsonArray = JSONArray.fromObject(map.get("streams"));
-
             if (jsonArray != null && jsonArray.size() > 0) {
                 for (int pos = 0; pos < jsonArray.size(); pos++) {
                     JSONObject o1 = (JSONObject) jsonArray.get(pos);
@@ -218,14 +216,14 @@ public class ContentService {
 
                 update.put("volumewin", volumewin);
                 update.put("volumeetc", volumeetc);
-                if("OGQ".equals(req.get("content"))){
-                    update.put("display", false);
+                if("OGQ".equals(content)){
+                    update.put("display", "false");
                 }
 
                 this.updateContentItem(update);
 
                 //업로드 완료된 파일 카탈로깅 등록 OGQ
-                if("OGQ".equals(req.get("content"))){
+                if("OGQ".equals(content)){
 
                     Map param = new HashedMap();
                     param.put("status", 1);

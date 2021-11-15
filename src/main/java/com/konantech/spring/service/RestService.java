@@ -16,7 +16,6 @@ import java.util.LinkedHashMap;
 @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 public class RestService {
     public LinkedHashMap getImgMetaInfo(String imgPath) throws Exception {
-
         RestTemplate restTemplate = new RestTemplate();
 
         String url = "http://10.10.18.183:8000/analyzer/";
@@ -48,7 +47,6 @@ public class RestService {
 
 
     public LinkedHashMap getImgQaInfo(String imgPath) throws Exception {
-
         RestTemplate restTemplate = new RestTemplate();
 
         String url = "http://10.10.18.193:3333/cap";
