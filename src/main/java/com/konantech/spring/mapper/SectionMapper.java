@@ -1,7 +1,9 @@
 package com.konantech.spring.mapper;
 
+import com.konantech.spring.domain.content.ContentQuery;
 import com.konantech.spring.domain.section.Qa;
 import com.konantech.spring.domain.section.Section;
+import com.konantech.spring.domain.storyboard.ShotTB;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -13,6 +15,7 @@ import java.util.Map;
 @Repository
 public interface SectionMapper {
     List<Map> getSectionList(Map map);
+    List<Map> getQaChkSectionList(Map map);
 
     List<Map> getSectionOfSceneList(Map map);
 
@@ -29,12 +32,14 @@ public interface SectionMapper {
     int setDepictionItem(Map map);
 
     List<Map> getQuestionList(Map param);
+    List<Map> getQaChkQuestionList(Map param);
 
     int putQuestionItem(Map map);
 
     int setQuestionItem(Map map);
 
     List<Map> getShotQuestionList(Map param);
+    List<Map> getWorkerList(Map param);
 
     int putShotQuestionItem(Map map);
 
@@ -66,5 +71,7 @@ public interface SectionMapper {
     List<Qa.QaResult.QnaInfo> getSectionInfoQa(Map param);
 
     List<Qa.QaResult.QnaInfo> getShotInfoQa(Map param);
+
+    List<ShotTB> getQaChkSectionOfSceneList(ContentQuery param);
 
 }
