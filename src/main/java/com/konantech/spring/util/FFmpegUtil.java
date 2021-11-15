@@ -70,7 +70,7 @@ public class FFmpegUtil {
 				successBuilder.append("\n");
 			}
 			while ((inputLine = stdError.readLine()) != null) {
-				errorBuilder.append(org.apache.commons.lang.StringUtils.trim(inputLine));
+				errorBuilder.append(StringUtils.trim(inputLine));
 				errorBuilder.append("\n");
 			}
 		} catch (Exception e) {
