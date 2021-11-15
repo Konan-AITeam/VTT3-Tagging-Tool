@@ -10,7 +10,6 @@ public class ApiException extends Exception {
 
     @JsonProperty("status")
     private int status = 400;
-    
 
     @JsonProperty("timestamp")
     private long timestamp = System.currentTimeMillis();
@@ -45,7 +44,6 @@ public class ApiException extends Exception {
         this.code = code;
     }
 
-    
     @JsonProperty("code")
     public int getCode() {
         return code;
