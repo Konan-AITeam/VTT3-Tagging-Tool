@@ -84,11 +84,18 @@ var player = {
                     myPlayer1.src({ type : "video/mp4", src : streamUrl });
                     $("#" + id + " video").attr("poster", imageUrl);
                 }
-
                 if(type == 'audio') {
                     myPlayer1.src({ type : "audio/mp3", src : streamUrl });
                     $("#" + id + " audio").attr("poster", imageUrl);
                 }
+                    var tracks = jsplayer.textTracks();
+                    for (var i = 0; i < tracks.length; i++) {
+                        var track = tracks[i];
+                        // Find the English captions track and mark it as "showing".
+                        if (track.kind === 'subtitles') {
+                            track.mode = 'showing';
+                        }
+                    }
             });
 
             jsplayer.on('timeupdate', function(){
