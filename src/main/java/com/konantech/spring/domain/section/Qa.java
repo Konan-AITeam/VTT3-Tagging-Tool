@@ -49,7 +49,7 @@ public class Qa {
         @Data
         public static class QnaResult {
             public int qid;
-            public int qa_level;
+            public String qa_level;
             public int q_level_mem;
             public int q_level_logic;
             public String que;

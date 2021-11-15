@@ -22,6 +22,9 @@ public class ShotTB implements Serializable {
     private boolean delflag;
     private int startno;
     private double activescore;
+    private String qachkworkerid;
+    private String questiontype;
+    private String questionid;
 
     //add
     private AnalyzerSogang detect;
