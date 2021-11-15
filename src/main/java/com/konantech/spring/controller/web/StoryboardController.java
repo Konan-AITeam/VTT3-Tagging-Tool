@@ -44,14 +44,12 @@ public class StoryboardController {
         Map param = RequestUtils.getParameterMap(request);
         param.put("userid", principal.getName());
         if (idx > 0) {
-
             ContentQuery query = new ContentQuery();
             query.setIdx(idx);
             ContentField item = contentService.getContentItem(query);
             List<ShotTB> list = storyboardService.getVisualJsonList(param);
             int total = list.size();
             Map<String, Object> shotSize = null;
-
             if (list != null && list.size() > 0) {
                 ShotTB firstAsset = list.get(0);
                 shotSize = storyboardService.getShotSize(firstAsset);

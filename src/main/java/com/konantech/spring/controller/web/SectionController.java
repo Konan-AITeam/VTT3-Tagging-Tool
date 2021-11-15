@@ -56,6 +56,7 @@ public class SectionController {
     public String getSecInfoMain(@PathVariable String type, ModelMap modelMap, HttpServletRequest request, Principal principal) throws Exception {
 
         int idx = RequestUtils.getParameterInt(request, "idx", 0);
+        Boolean qachk = RequestUtils.getParameterBool(request, "qachk", false);
         //TODO idx 를 통한 폴더 검색
         //파일 생성 후 idx 정보 획득 경로 협의 필요.
 
@@ -76,6 +77,7 @@ public class SectionController {
         modelMap.addAttribute("videoServerUrl", videoServerUrl);
         modelMap.addAttribute("idx", idx);
         modelMap.addAttribute("rate", frate);
+        modelMap.addAttribute("qachk", qachk);
         modelMap.addAttribute("contentField", contentField);
 
         return "section/section_" + type + "_edit";
@@ -86,13 +88,26 @@ public class SectionController {
      */
     @RequestMapping(value = "/section/getQaSectionList")
     public String getQaSectionList(Model model, HttpServletRequest request, Principal principal) throws Exception {
-
         Map<String, String> param = RequestUtils.getParameterMap(request);
         List<Map> list = sectionService.getSectionList(request, principal);
         model.addAttribute("qaSectionList", list);
         model.addAttribute("param", param);
 
         return "section/_section_qa_list";
+    }
+
+    /*
+     * QA 검증용 구간 리스트 호출
+     */
+    @RequestMapping(value = "/section/getQaChkSectionList")
+    public String getQaChkSectionList(Model model, HttpServletRequest request, Principal principal) throws Exception {
+        Map<String, String> param = RequestUtils.getParameterMap(request);
+
+        List<Map> list = sectionService.getQaChkSectionList(request, principal);
+        model.addAttribute("qaSectionList", list);
+        model.addAttribute("param", param);
+
+        return "section/_section_qachk_list";
     }
 
     /*
@@ -155,10 +170,42 @@ public class SectionController {
     public String getQuestionList(Model model, HttpServletRequest request, Principal principal) throws Exception {
         Map<String, String> param = RequestUtils.getParameterMap(request);
         List<Map> list = sectionService.getQuestionList(request, principal);
+        String workerId = RequestUtils.getParameter(request, "workerId");
+        if(workerId == null || "".equals(workerId)){
+            workerId = principal.getName();
+        }
+        model.addAttribute("workerId", workerId);
+        if(request.isUserInRole("ROLE_ADMIN")){
+            List userList = sectionService.getWorkerList(request);
+            model.addAttribute("userList", userList);
+        }
         model.addAttribute("questionList", list);
         model.addAttribute("param", param);
 
         return "section/section_question_list";
+    }
+    /*
+     * QA 리스트 호출
+     */
+    @RequestMapping(value = "/section/getQaChkQuestionList")
+    public String getQaChkQuestionList(Model model, HttpServletRequest request, Principal principal) throws Exception {
+        Map<String, String> param = RequestUtils.getParameterMap(request);
+        List<Map> list = sectionService.getQuestionList(request, principal);
+        String workerId = RequestUtils.getParameter(request, "workerId");
+        String questionid = RequestUtils.getParameter(request, "questionId");
+        if(workerId == null || "".equals(workerId)){
+            workerId = principal.getName();
+        }
+        model.addAttribute("workerId", workerId);
+        if(request.isUserInRole("ROLE_ADMIN")){
+            List userList = sectionService.getWorkerList(request);
+            model.addAttribute("userList", userList);
+        }
+        model.addAttribute("questionid", questionid);
+        model.addAttribute("questionList", list);
+        model.addAttribute("param", param);
+
+        return "section/section_qachk_question_list";
     }
 
     /*
@@ -184,13 +231,46 @@ public class SectionController {
     /*
      * QA 리스트 호출
      */
+    @RequestMapping(value = "/section/getQaChkShotQuestionList")
+    public String getQaChkShotQuestionList(Model model, HttpServletRequest request, Principal principal) throws Exception {
+        Map<String, String> param = RequestUtils.getParameterMap(request);
+        List<Map> list = sectionService.getShotQuestionList(request, principal);
+
+        String workerId = RequestUtils.getParameter(request, "workerId");
+        String questionid = RequestUtils.getParameter(request, "questionId");
+        if(workerId == null || "".equals(workerId)){
+            workerId = principal.getName();
+        }
+        model.addAttribute("workerId", workerId);
+        if(request.isUserInRole("ROLE_ADMIN")){
+            List userList = sectionService.getWorkerList(request);
+            model.addAttribute("userList", userList);
+        }
+        model.addAttribute("questionList", list);
+        model.addAttribute("param", param);
+        model.addAttribute("questionid", questionid);
+        return "section/section_qachk_shot_question_list";
+    }
+
+    /*
+     * QA 리스트 호출
+     */
     @RequestMapping(value = "/section/getShotQuestionList")
     public String getShotQuestionList(Model model, HttpServletRequest request, Principal principal) throws Exception {
         Map<String, String> param = RequestUtils.getParameterMap(request);
         List<Map> list = sectionService.getShotQuestionList(request, principal);
+
+        String workerId = RequestUtils.getParameter(request, "workerId");
+        if(workerId == null || "".equals(workerId)){
+            workerId = principal.getName();
+        }
+        model.addAttribute("workerId", workerId);
+        if(request.isUserInRole("ROLE_ADMIN")){
+            List userList = sectionService.getWorkerList(request);
+            model.addAttribute("userList", userList);
+        }
         model.addAttribute("questionList", list);
         model.addAttribute("param", param);
-
         return "section/section_shot_question_list";
     }
 
@@ -253,7 +333,6 @@ public class SectionController {
         }
         return "section/section_relation_list";
     }
-
     @RequestMapping(value = "/section/getSectionOfSceneList")
     public String getSectionOfSceneList(Model model, HttpServletRequest request) throws Exception {
         Map param = RequestUtils.getParameterMap(request);
@@ -270,6 +349,31 @@ public class SectionController {
         model.addAttribute("param", param);
         model.addAttribute("itemDetail", contentField);
         return "section/section_qa_section_list";
+    }
+
+    @RequestMapping(value = "/section/getQaChkSectionOfSceneList")
+    public String getQaChkSectionOfSceneList(Model model, HttpServletRequest request,  Principal principal) throws Exception {
+        Map param = RequestUtils.getParameterMap(request);
+        ContentQuery query1 = new ContentQuery();
+        query1.setIdx(RequestUtils.getParameterInt(request, "videoid"));
+        query1.setQaSearchWord(RequestUtils.getParameter(request, "qaSearchWord"));
+        if(request.isUserInRole("ROLE_ADMIN")){
+            query1.setRoleadmin("admin");
+        }else{
+            query1.setRoleadmin("user");
+        }
+        query1.setUserid(principal.getName());
+
+        List<ShotTB> list = sectionService.getQaChkSectionOfSceneList(query1);
+
+        ContentQuery query2 = new ContentQuery();
+        query2.setIdx(RequestUtils.getParameterInt(request, "videoid"));
+        ContentField contentField = contentService.getContentItem(query2);
+
+        model.addAttribute("sectionList", list);
+        model.addAttribute("param", param);
+        model.addAttribute("itemDetail", contentField);
+        return "section/section_qachk_section_list";
     }
 
     /*

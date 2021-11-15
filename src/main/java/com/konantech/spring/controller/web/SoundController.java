@@ -64,7 +64,6 @@ public class SoundController {
      */
     @RequestMapping(value = "/sound/soundList")
     public String getQaSectionList(Model model, HttpServletRequest request, Principal principal) throws Exception {
-
         Map<String,String> param = RequestUtils.getParameterMap(request);
 
         //사운드 타입코드

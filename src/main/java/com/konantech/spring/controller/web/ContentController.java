@@ -32,7 +32,6 @@ public class ContentController {
 
     @Autowired
     private ContentService contentService;
-
     @Autowired
     private WorkflowService workflowService;
 
@@ -40,7 +39,6 @@ public class ContentController {
     RestService restService; //레스트 서비스
 
     @RequestMapping(value = "/content", method = RequestMethod.GET)
-
     public String content(ModelMap modelMap, HttpServletRequest request, Authentication authentication) throws Exception {
         Map<String, Object> queryMap = RequestUtils.getParameterMap(request);
         modelMap.addAttribute("queryMap", queryMap);
