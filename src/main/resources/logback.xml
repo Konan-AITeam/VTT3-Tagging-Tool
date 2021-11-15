@@ -29,7 +29,7 @@
         </rollingPolicy>
     </appender>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="STDOUT"  class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{yyyyMMdd HH:mm:ss.SSS} [%thread] %-3level %logger{5} - %msg %n</pattern>
         </encoder>
@@ -40,13 +40,13 @@
         <appender-ref ref="STDOUT" />
     </logger>
 
-    <root level="error">
+    <root level="debug" >
         <appender-ref ref="FILE-AUDIT" />
     </root>
 
     <logger name="jdbc" level="OFF"/>
 
-    <logger name="jdbc.sqlonly" level="DEBUG" additivity="false">>
+    <logger name="jdbc.sqlonly" level="debug" additivity="false">>
         <appender-ref ref="STDOUT" />
     </logger>
 

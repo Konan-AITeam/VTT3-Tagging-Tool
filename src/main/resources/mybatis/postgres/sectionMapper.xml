@@ -2,28 +2,53 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.konantech.spring.mapper.SectionMapper">
     <select id="getSectionList" parameterType="map" resultType="java.util.Map">
+            SELECT
+                sectionid,
+                videoid,
+                starttimecode,
+                startframeindex,
+                endtimecode,
+                endframeindex,
+                sectionname,
+                startshotid,
+                endshotid
+            FROM
+                VTTM_SECTION_INFO_TB
+            <where>
+                videoid = #{idx}
+            </where>
+            ORDER BY startshotid, endshotid asc
+    </select>
 
-        SELECT
-            sectionid,
-            videoid,
-            starttimecode,
-            startframeindex,
-            endtimecode,
-            endframeindex,
-            sectionname,
-            startshotid,
-            endshotid
-        FROM
-          VTTM_SECTION_INFO_TB
+    <select id="getQaChkSectionList" parameterType="map" resultType="java.util.Map">
+        select
+            a.sectionid,
+            a.videoid,
+            a.starttimecode,
+            a.startframeindex,
+            a.endtimecode,
+            a.endframeindex,
+            a.sectionname,
+            a.startshotid,
+            a.endshotid,
+            b.userid as qachkworkerid,
+            b.questiontype,
+            b.questionid
+        from
+            VTTM_SECTION_INFO_TB	a
+        inner join
+            vttm_section_qa_tb b on a.sectionid = b.sectionid
         <where>
             videoid = #{idx}
+            and b.question like #{qaSearchWord} || '%'
+            <if test="roleadmin == 'user'">
+            and b.userid = #{userid}
+            </if>
         </where>
-        ORDER BY startshotid, endshotid asc
-
+        order by a.sectionid, b.userid, questionid
     </select>
 
     <select id="getSectionOfSceneList" parameterType="map" resultType="java.util.Map">
-
         SELECT
         sectionid,
         videoid,
@@ -41,8 +66,43 @@
             AND sectionid = #{sectionid}
         </where>
         ORDER BY startshotid, endshotid asc
+    </select>
+
+
+    <select id="getQaChkSectionOfSceneList" parameterType="ContentQuery" resultType="ShotTB">
+        SELECT
+            B.shotid,
+            B.videoid,
+            B.content,
+            B.starttimecode,
+            B.startframeindex,
+            B.endtimecode,
+            B.endframeindex,
+            B.assetfilename,
+            B.assetfilepath,
+            B.object,
+            B.delflag,
+            SUBSTR(A.sectionname, 0, POSITION('-' in A.sectionname)) AS startno,
+            step,
+            C.userid as qachkworkerid,
+            C.questiontype,
+            C.questionid
+        FROM VTTM_SECTION_INFO_TB A
+       INNER JOIN VTTM_SHOT_TB B ON A.videoid = B.videoid AND B.shotid BETWEEN A.startshotid AND A.endshotid
+       INNER JOIN vttm_shot_qa_tb C ON C.shotid = B.shotid
+        <where>
+            A.videoid = #{idx}
+            and C.question like #{qaSearchWord} || '%'
+            <if test="roleadmin == 'user'">
+                and C.userid = #{userid}
+            </if>
+        </where>
+        ORDER BY B.shotid asc
+        <if test="limit > 0">LIMIT #{limit} </if>
+        <if test="offset > 0">OFFSET #{offset} </if>
 
     </select>
+
 
     <insert id="putSectionItem" parameterType="map" useGeneratedKeys="true" keyProperty="sectionid">
         <selectKey keyProperty="sectionid" resultType="Integer" order="BEFORE">
@@ -136,6 +196,19 @@
         ORDER BY questionid asc
     </select>
 
+    <select id="getQaChkQuestionList" parameterType="map" resultType="java.util.Map">
+        SELECT
+        questionid, questiontype, sectionid, question, answer, wrong_answer1, wrong_answer2, wrong_answer3, wrong_answer4
+        FROM
+        VTTM_SECTION_QA_TB
+        <where>
+            sectionid = #{sectionid}
+            and userid = #{userid}
+            and questionid = #{questionid}
+        </where>
+        ORDER BY questionid asc
+    </select>
+
     <insert id="putQuestionItem" parameterType="map" useGeneratedKeys="true" keyProperty="questionid">
         <selectKey keyProperty="questionid" resultType="Integer" order="BEFORE">
             SELECT NEXTVAL('SEQ_SECTION_QA_TB')
@@ -174,7 +247,8 @@
             wrong_answer1 = #{wrong_answer1},
             wrong_answer2 = #{wrong_answer2},
             wrong_answer3 = #{wrong_answer3},
-            wrong_answer4 = #{wrong_answer4}
+            wrong_answer4 = #{wrong_answer4},
+            updatedtm = now()
         where questionid = #{questionid}
     </update>
 
@@ -188,6 +262,28 @@
             and userid = #{userid}
         </where>
         ORDER BY questionid asc
+    </select>
+
+    <select id="getWorkerList" parameterType="map" resultType="java.util.Map">
+
+        <if test="sectionid != null and sectionid != ''">
+            SELECT distinct userid as username
+            FROM
+            VTTM_SECTION_QA_TB
+            <where>
+                sectionid = #{sectionid}
+            </where>
+            ORDER BY userid asc
+        </if>
+        <if test="shotid != null and shotid != ''">
+            SELECT distinct userid as username
+            FROM
+            VTTM_SHOT_QA_TB
+            <where>
+                shotid = #{shotid}
+            </where>
+            ORDER BY userid asc
+        </if>
     </select>
 
     <insert id="putShotQuestionItem" parameterType="map" useGeneratedKeys="true" keyProperty="questionid">
@@ -228,7 +324,8 @@
             wrong_answer1 = #{wrong_answer1},
             wrong_answer2 = #{wrong_answer2},
             wrong_answer3 = #{wrong_answer3},
-            wrong_answer4 = #{wrong_answer4}
+            wrong_answer4 = #{wrong_answer4},
+            updatedtm = now()
         where questionid = #{questionid}
     </update>
     <select id="getRelationList" parameterType="map" resultType="java.util.Map">

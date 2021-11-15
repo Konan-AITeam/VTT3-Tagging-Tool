@@ -41,14 +41,12 @@
     </insert>
 
     <update id="setSoundItem" parameterType="map">
-
         UPDATE VTTM_SOUND_TB
         SET
             starttimecode = #{starttimecode},
             endtimecode = #{endtimecode},
             soundtype = #{soundtype}
         where soundid = #{soundid}
-
     </update>
 
     <delete id="deleteSoundItems">
