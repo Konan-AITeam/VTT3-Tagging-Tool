@@ -77,7 +77,6 @@ public class AnalyzerSogang {
 
             // object
             JSONArray jsonArrayObject = JSONArray.fromObject(map.get("objectData"));
-
             objectData = new ArrayList<>();
             for(Object obj : jsonArrayObject) {
                 JSONArray jsonArray = (JSONArray) obj;
@@ -97,7 +96,6 @@ public class AnalyzerSogang {
 
             // place
             JSONArray jsonArrayPlace = JSONArray.fromObject(map.get("placeData"));
-
             placeData = new ArrayList<>();
             for(Object obj : jsonArrayPlace) {
                 JSONArray jsonArray = (JSONArray) obj;
