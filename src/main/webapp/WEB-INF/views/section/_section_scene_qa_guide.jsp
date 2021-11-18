@@ -21,6 +21,9 @@
                 <li role="presentation" class="col-lg-3 col-md-3 col-xs-3">
                     <a href="#QA2GuideDiv" role="tab" id="QA2Tab" data-toggle="tab" aria-expanded="false">Q & A - Level 4</a>
                 </li>
+                <li role="presentation" class="col-lg-3 col-md-3 col-xs-3">
+                    <a href="#QAKBGuideDiv" role="tab" id="QAKBTab" data-toggle="tab" aria-expanded="false">Q & A - Level KB</a>
+                </li>
             </ul>
 
             <div id="nav-objTabContent" class="layer-edit-wrap tab-content">
@@ -40,13 +43,14 @@
                         <li class="list-group-item">Now consider multiple supporting facts with <b>time factor*</b> from the video (scene) and create a QA sets. <br>* <b>Time factor</b>: A sequence of the situations/actions in the video.<br>According to this, QA sets about how situations have changed and subjects have acted can be created <br>(e.g. Q: How did Rachel figure out the truth of prom in high school? A: Rachel watched the video that shoot at the day.)</li>
                         <li class="list-group-item"><b>Your question must start with 5W1H</b>.(How (preferred), What)</li>
                         <li class="list-group-item">Your question and answers <b>must be a complete sentence with correct grammar</b>. If either question or answer consists of a single word, you cannot submit.</li>
+                        <li class="list-group-item">You can also write another WH or how questions with conjunctions of time. (e.g. Where did A go after B? , What did A do when B? , Who did come before B?)</li>
                         <li class="list-group-item">The questions you <b>write must be answered within a video clip</b>.</li>
                         <li class="list-group-item">Please avoid completely unrelated questions</b>. ex) How old is the earth? (X)</li>
                         <li class="list-group-item">Please <b>avoid vague terms</b>. Phrase the question in such a way that there is only one possible answer to the question.</li>
                         <li class="list-group-item">Please enter <b>case sensitive</b>.<br>ex) WHY IS ROSS UPSET? (X)<br>ex) Why is Ross upset? (O)</li>
                         <li class="list-group-item">Please <b>don't use personal pronouns like "they, he, she, …"</b>. Use person's name instead.</li>
                         <li class="list-group-item">Please use only the names specified in the character guide, such as Maru, Eungi and etc.</li>
-                        <li class="list-group-item">Please write fake answers as similar as the length of true answer that you created.</li>
+                        <li class="list-group-item">Your question should have a difference between right and wrong answers according to the relevant question word</li>
                     </ul>
                 </div>
                 <div role="tabpanel" class="tab-pane fade" id="QA2GuideDiv" aria-labelledby="QA2Tab">
@@ -54,6 +58,7 @@
                     <ul class="list-group list-group-flush" style="font-size: 1.2em;">
                         <li class="list-group-item">At this level, consider <b>reason for causality*</b> from the video (scene) and create a QA sets. <br>* <b>Reasoning for causality</b>: The process of identifying causality: the relationship between a cause and effect from actions or situations. Question can start with “WHY”, and Answer should be reasoning for causality. <br>(e.g. Q: Why does Rachel storm out of the office? A: She thinks the interviewer is trying to sleep with her)</li>
                         <li class="list-group-item"><b>Your question must start with 5W1H</b>.(Why)</li>
+                        <li class="list-group-item">You can also write another WH or how questions with causal words. (e.g. What is the reason ~? , Who is the cause of this event? , Who was responsible for these events?)</li>
                         <li class="list-group-item">Your question and answers <b>must be a complete sentence with correct grammar</b>. If either question or answer consists of a single word, you cannot submit.</li>
                         <li class="list-group-item">The questions you <b>write must be answered within a video clip</b>.</li>
                         <li class="list-group-item">Please avoid completely unrelated questions</b>. ex) How old is the earth? (X)</li>
@@ -61,7 +66,25 @@
                         <li class="list-group-item">Please enter <b>case sensitive</b>.<br>ex) WHY IS ROSS UPSET? (X)<br>ex) Why is Ross upset? (O)</li>
                         <li class="list-group-item">Please <b>don't use personal pronouns like "they, he, she, …"</b>. Use person's name instead.</li>
                         <li class="list-group-item">Please use only the names specified in the character guide, such as Maru, Eungi and etc.</li>
-                        <li class="list-group-item">Please write fake answers as similar as the length of true answer that you created.</li>
+                        <li class="list-group-item">Your question should have a difference between right and wrong answers according to the relevant question word.</li>
+                    </ul>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="QAKBGuideDiv" aria-labelledby="QAKBTab">
+                    <h3>Scene Q&A (Level KB) 가이드라인</h3>
+                    <ul class="list-group list-group-flush" style="font-size: 1.2em;">
+                        <li class="list-group-item">Now consider multiple supporting facts with <b>time factor*</b> from the video (scene) and create a QA sets.<br><b>* Time factor</b>: A sequence of the situations/actions in the video.<br>According to this, QA sets about how situations have changed and subjects have acted can be created.</li>
+                        <li class="list-group-item">At this level, consider <b>reason for causality*</b> from the video (scene) and create a QA sets.<br><b>* Reasoning for causality:</b> The process of identifying causality: the relationship between a cause and effect from actions or situations. Question can start with “WHY”, and Answer should be reasoning for causality.</li>
+                        <li class="list-group-item">Please write questions and answers that can be inferred from common-sense knowledge (synonym, relatedTo, atlocation, usedfor, isa, hasproperty) related to visual objects within a video clip. (e.g. Q: Why did Kyungsu went to kitchen? A: Because Kyungsu need more food -> kitchen-atlocation-food)
+                        <li class="list-group-item"><b>Your question must start with 5W1H.</b>(How, What, Why)
+                        <li class="list-group-item">You can also write another WH or how questions with conjunctions of time or causal words.
+                        <li class="list-group-item">Your question and answers <b>must be a complete sentence with correct grammar.</b> If either question or answer consists of a single word, you cannot submit.
+                        <li class="list-group-item">The questions you <b>write must be answered within a video clip.</b>
+                        <li class="list-group-item">Wrong answers should not contain words related to common-sense knowledge in the question and right answer.
+                        <li class="list-group-item">Please <b>avoid vague terms.</b> Phrase the question in such a way that there is only one possible answer to the question.
+                        <li class="list-group-item">Please enter <b>case sensitive.</b><br>ex) WHY IS ROSS UPSET? (X)<br>ex) Why is Ross upset? (O)</li>
+                        <li class="list-group-item">Please <b>don't use personal pronouns like "they, he, she, …".</b> Use person's name instead.</li>
+                        <li class="list-group-item">Please use only the names specified in the character guide, such as Maru, Eungi and etc.</li>
+                        <li class="list-group-item">Your question should have a difference between right and wrong answers according to the relevant question word.</li>
                     </ul>
                 </div>
             </div>

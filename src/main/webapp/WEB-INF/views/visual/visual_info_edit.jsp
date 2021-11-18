@@ -1400,7 +1400,7 @@
                     if(module_name == 'missoh.face'){
                         arrayFaceData = jsonResultData[i].module_result;
                     }
-                    else if(module_name == 'object'){
+                    else if(module_name == 'cvip.object.missoh'){
                         arrayObjData1 = jsonResultData[i].module_result;
                     }
                 }
@@ -1421,6 +1421,7 @@
                         y: scaleToPopImg(position.y,imgRatio),
                         width: scaleToPopImg(position.w,imgRatio),
                         height: scaleToPopImg(position.h,imgRatio),
+
                         //boxname: 'face',
                         boxname: description,
                         boxtype:"face",
@@ -1472,6 +1473,10 @@
                     var description = label[0].description;
                     var score = label[0].score.toString().substring(0, 3);
 
+                    /*console.log( 'x:' +  position.x);
+                    console.log( 'y:' + position.y);
+                    console.log('w:' +  position.w);
+                    console.log( 'h:' +  position.h);*/
                     if(description!='person'){
                         objCnt++;
                         // asc: false, desc: true
