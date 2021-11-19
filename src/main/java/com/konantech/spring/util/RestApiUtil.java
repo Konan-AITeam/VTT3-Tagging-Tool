@@ -15,7 +15,6 @@ import java.util.Map;
 @ConfigurationProperties
 public class RestApiUtil {
 
-//    @Value("${darc.api.url}")
     private String darcApiUrl;
 
     public String streamOut(InputStream inputStream) throws IOException {
@@ -105,8 +104,6 @@ public class RestApiUtil {
         BufferedReader br = new BufferedReader(new InputStreamReader(
                 (conn.getInputStream())));
 
-
-
         System.out.println("Output from Server .... \n");
         while ((output = br.readLine()) != null) {
             System.out.println(output);
@@ -131,7 +128,6 @@ public class RestApiUtil {
         conn.setRequestProperty("Connection", "Keep-Alive");
         conn.setRequestProperty("Content-Type", "application/json");
 
-
         OutputStream os = conn.getOutputStream();
         os.write(input.getBytes());
         os.flush();
@@ -143,8 +139,6 @@ public class RestApiUtil {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(
                 (conn.getInputStream())));
-
-
 
         System.out.println("Output from Server .... \n");
         while ((output = br.readLine()) != null) {
@@ -178,5 +172,4 @@ public class RestApiUtil {
         }
         return null;
     }
-
 }
