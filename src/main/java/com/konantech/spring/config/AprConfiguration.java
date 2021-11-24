@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Configuration;
 public class AprConfiguration {
     @Value("${server.tomcat.apr.enabled:false}")
     private boolean enabled;
-
     @Bean
     public EmbeddedServletContainerFactory servletContainer() {
         TomcatEmbeddedServletContainerFactory container = new TomcatEmbeddedServletContainerFactory();
@@ -24,7 +23,6 @@ public class AprConfiguration {
             container.setProtocol("org.apache.coyote.http11.Http11AprProtocol");
             container.addContextLifecycleListeners(arpLifecycle);
         }
-
         return container;
     }
 }
