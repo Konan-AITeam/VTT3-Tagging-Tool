@@ -34,9 +34,9 @@
 <!-- DateJS -->
 <script src="<c:url value="/webjars/datejs/1.0.0-rc3/build/date.js"/>"></script>
 <!-- JQVMap -->
-<script src="<c:url value="/webjars/jqvmap/1.5.1/dist/jquery.vmap.js"/>"></script>
+<%--<script src="<c:url value="/webjars/jqvmap/1.5.1/dist/jquery.vmap.js"/>"></script>
 <script src="<c:url value="/webjars/jqvmap/1.5.1/dist/maps/jquery.vmap.world.js"/>"></script>
-<script src="<c:url value="/webjars/jqvmap/1.5.1/examples/js/jquery.vmap.sampledata.js"/>"></script>
+<script src="<c:url value="/webjars/jqvmap/1.5.1/examples/js/jquery.vmap.sampledata.js"/>"></script>--%>
 <!-- bootstrap-daterangepicker -->
 <script src="<c:url value="/webjars/bootstrap-daterangepicker/2.1.24/js/bootstrap-daterangepicker.js"/>"></script>
 <!-- momentjs -->
