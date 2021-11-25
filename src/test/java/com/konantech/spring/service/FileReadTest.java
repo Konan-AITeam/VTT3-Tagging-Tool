@@ -105,8 +105,6 @@ public class FileReadTest {
                 }
             }
         }
-
-
     }
 
     @Test
@@ -117,7 +115,6 @@ public class FileReadTest {
 
         ArrayList<SectionVo> sectionShotList = new ArrayList<>();
         SectionVo sectionVo;
-
 
         File dirFile = new File(imgFilePath);
         File[] fileList = dirFile.listFiles();
