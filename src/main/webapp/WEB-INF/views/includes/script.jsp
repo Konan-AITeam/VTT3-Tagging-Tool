@@ -42,7 +42,7 @@
 <!-- momentjs -->
 <script src="<c:url value="/webjars/momentjs/2.13.0/min/moment.min.js"/>"></script>
 <!-- blockui -->
-<script src="<c:url value="/webjars/jquery-blockui/2.70/jquery.blockUI.js"/>"></script>
+<script src="<c:url value="/webjars/jquery-blockui/2.70.1/jquery.blockUI.js"/>"></script>
 
 <script src="<c:url value="/webjars/jquery.dirtyforms/2.0.0/jquery.dirtyforms.min.js"/>"></script>
 <!-- Skycons -->
