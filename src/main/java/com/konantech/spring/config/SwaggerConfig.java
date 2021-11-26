@@ -21,13 +21,11 @@ import static com.google.common.collect.Lists.newArrayList;
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
-
     /*
     버전 올라갈때마다 약간씩 설정이 자주 바뀌니,
     http://www.baeldung.com/swagger-2-documentation-for-spring-rest-api
     참고해서 업그레이드 할것!!
     */
-
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -51,11 +49,9 @@ public class SwaggerConfig {
                 );
 
     }
-
     private ApiKey authorization() {
         return new ApiKey("x-auth-token", "api-key", "header");
     }
-
     private ApiInfo apiInfo() {
         return new ApiInfo(
                 "SPRING REST API DEMO",
