@@ -187,7 +187,7 @@ Font Awesome
 blockui
 - org.webjars:jquery-blockui
 - https://mvnrepository.com/artifact/org.webjars/jquery-blockui/2.70-1
-- MIT License
+- MIT License (2.70-1)
 
 jQuery UI
 - org.webjars:jquery-ui
