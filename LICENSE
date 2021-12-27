@@ -154,11 +154,6 @@ jquery.dirtyforms
 - https://mvnrepository.com/artifact/org.webjars.bower/jquery.dirtyforms
 - MIT License
 
-jqvmap
-- org.webjars.npm:jqvmap
-- https://mvnrepository.com/artifact/org.webjars.npm/jqvmap
-- MIT License
-
 Bootbox
 - org.webjars:bootbox
 - https://mvnrepository.com/artifact/org.webjars/bootbox
